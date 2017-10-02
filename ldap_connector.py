@@ -1103,8 +1103,14 @@ class LdapConnector(BaseConnector):
             user = action_result.add_data({'dn': user_dn})
 
             user['emails'] = user_info.get('mail', [])
-            user['displayname'] = user_info.get('displayName', [])[0]
-            user['samaccountname'] = user_info.get('sAMAccountName', [])[0]
+            try:
+                user['displayname'] = user_info.get('displayName', [])[0]
+            except:
+                pass
+            try:
+                user['samaccountname'] = user_info.get('sAMAccountName', [])[0]
+            except:
+                pass
 
         action_result.update_summary({LDAP_JSON_TOTAL_USERS: action_result.get_data_size()})
 

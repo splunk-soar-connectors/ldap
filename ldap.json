@@ -1,7 +1,7 @@
 {
-    "appid": "84110F27-6602-4DC8-A6F2-0311B1720BF8",
+    "appid": "84110f27-6602-4dc8-a6f2-0311b1720bf8",
     "name": "LDAP",
-    "description": "This app implements various actions that can be carried out on an AD server. For example investigative actions like 'list user groups' and 'get user attributes' in addition to containment actions like 'disable user' and 'reset password'.",
+    "description": "This app implements various actions that can be carried out on an AD server",
     "publisher": "Phantom",
     "type": "directory service",
     "main_module": "ldap_connector.pyc",
@@ -11,9 +11,9 @@
     "product_vendor": "Microsoft",
     "product_name": "Windows Server",
     "product_version_regex": ".*",
-    "min_phantom_version": "1.2.236",
+    "min_phantom_version": "3.0.247",
     "logo": "microsoft_logo.png",
-    "license": "Copyright (c) Phantom Cyber Corporation 2015-2016",
+    "license": "Copyright (c) Phantom Cyber Corporation 2015-2017",
     "configuration": {
         "server": {
             "data_type": "string",

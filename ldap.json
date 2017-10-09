@@ -1,1130 +1,1178 @@
 {
-    "appid"       : "84110F27-6602-4DC8-A6F2-0311B1720BF8",
-    "name"      : "LDAP",
-    "description" : "This app implements various actions that can be carried out on an AD server. For example investigative actions like 'list user groups' and 'get user attributes' in addition to containment actions like 'disable user' and 'reset password'.",
+    "appid": "84110F27-6602-4DC8-A6F2-0311B1720BF8",
+    "name": "LDAP",
+    "description": "This app implements various actions that can be carried out on an AD server",
     "publisher": "Phantom",
     "type": "directory service",
     "main_module": "ldap_connector.pyc",
-    "app_version": "1.2.27",
-    "utctime_updated": "2017-04-29T02:30:33.000000Z",
+    "app_version": "1.2.30",
+    "utctime_updated": "2017-10-07T01:39:19.000000Z",
     "package_name": "phantom_ldap",
     "product_vendor": "Microsoft",
     "product_name": "Windows Server",
     "product_version_regex": ".*",
-    "min_phantom_version": "1.2.236",
+    "min_phantom_version": "3.0.247",
     "logo": "microsoft_logo.png",
-    "license": "Copyright (c) Phantom Cyber Corporation 2015-2016",
+    "license": "Copyright (c) Phantom Cyber Corporation 2015-2017",
     "configuration": {
-      "server": {
-        "data_type": "string",
-        "order": 0,
-        "description": "Server IP/Hostname",
-        "required": true
-      },
-      "force_ssl": {
-        "order": 1,
-        "data_type": "boolean",
-        "description": "Force use of SSL",
-        "required": true,
-        "default": true
-      },
-      "username": {
-        "data_type": "string",
-        "order": 2,
-        "description": "Administrator username",
-        "required": true
-      },
-      "password": {
-        "data_type": "password",
-        "order": 3,
-        "description": "Administrator password",
-        "required": true
-      }
+        "server": {
+            "data_type": "string",
+            "order": 0,
+            "description": "Server IP/Hostname",
+            "required": true
+        },
+        "force_ssl": {
+            "order": 1,
+            "data_type": "boolean",
+            "description": "Force use of SSL",
+            "required": true,
+            "default": true
+        },
+        "username": {
+            "data_type": "string",
+            "order": 2,
+            "description": "Administrator username",
+            "required": true
+        },
+        "password": {
+            "data_type": "password",
+            "order": 3,
+            "description": "Administrator password",
+            "required": true
+        }
     },
     "actions": [
-      {
-        "action": "test connectivity",
-        "description": "Validate the asset configuration for connectivity. This action logs into the device to check the connection and credentials.",
-        "type": "test",
-        "identifier": "test_asset_connectivity",
-        "read_only": true,
-        "parameters": {
+        {
+            "action": "test connectivity",
+            "description": "Validate the asset configuration for connectivity. This action logs into the device to check the connection and credentials.",
+            "type": "test",
+            "identifier": "test_asset_connectivity",
+            "read_only": true,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
         },
-        "output": [],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "disable user",
-        "description": "Disables the specified user",
-        "type": "contain",
-        "identifier": "disable_user",
-        "undo":"enable user",
-        "read_only": false,
-        "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
-        "parameters": {
-          "username": { 
-            "description": "Username to disable",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["user name"],
-            "primary": true,
-            "required": true
-          }
+        {
+            "action": "disable user",
+            "description": "Disables the specified user",
+            "type": "contain",
+            "identifier": "disable_user",
+            "undo": "enable user",
+            "read_only": false,
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "parameters": {
+                "username": {
+                    "description": "Username to disable",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "user name"
+                    ],
+                    "primary": true,
+                    "required": true
+                }
+            },
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Disable User"
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.username",
+                    "data_type": "string",
+                    "contains": [
+                        "user name"
+                    ],
+                    "column_name": "Username",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "Message",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "render": {
-          "type": "table",
-          "width": 12,
-          "height": 5,
-          "title": "Disable User"
+        {
+            "action": "enable user",
+            "description": "Enables the specified user",
+            "type": "correct",
+            "identifier": "enable_user",
+            "undo": "disable user",
+            "read_only": false,
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "parameters": {
+                "username": {
+                    "description": "Username to enable",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "user name"
+                    ],
+                    "primary": true,
+                    "required": true
+                }
+            },
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Enable User"
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.username",
+                    "data_type": "string",
+                    "contains": [
+                        "user name"
+                    ],
+                    "column_name": "Username",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "Message",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.username",
-            "data_type": "string",
-            "contains": [ "user name" ],
-            "column_name": "Username",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string",
-            "column_name": "Message",
-            "column_order": 1
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "enable user",
-        "description": "Enables the specified user",
-        "type": "correct",
-        "identifier": "enable_user",
-        "undo":"disable user",
-        "read_only": false,
-        "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
-        "parameters": {
-          "username": { 
-            "description": "Username to enable",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["user name"],
-            "primary": true,
-            "required": true
-          }
+        {
+            "action": "list user groups",
+            "description": "Get the groups that the user is a member of",
+            "type": "investigate",
+            "identifier": "get_user_groups",
+            "read_only": true,
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "parameters": {
+                "username": {
+                    "description": "Username (to get goups it belongs to)",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "user name"
+                    ],
+                    "primary": true,
+                    "required": true
+                }
+            },
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "Group Membership"
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.username",
+                    "data_type": "string",
+                    "column_name": "Username",
+                    "column_order": 0,
+                    "contains": [
+                        "user name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.group",
+                    "data_type": "string",
+                    "column_name": "Groups",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.summary.total_groups",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "render": {
-          "type": "table",
-          "width": 12,
-          "height": 5,
-          "title": "Enable User"
+        {
+            "action": "change system ou",
+            "description": "Change the OU of a computer/system",
+            "type": "contain",
+            "identifier": "change_system_ou",
+            "read_only": false,
+            "parameters": {
+                "hostname": {
+                    "description": "Hostname",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "host name"
+                    ],
+                    "primary": true,
+                    "required": true
+                },
+                "ou": {
+                    "description": "OU to change to",
+                    "data_type": "string",
+                    "order": 1,
+                    "required": true
+                }
+            },
+            "render": {
+                "width": 12,
+                "title": "Change System OU",
+                "type": "table",
+                "height": 5
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.hostname",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ],
+                    "column_name": "Host Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.ou",
+                    "data_type": "string",
+                    "column_name": "Destination OU",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "Message",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.username",
-            "data_type": "string",
-            "contains": [ "user name" ],
-            "column_name": "Username",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string",
-            "column_name": "Message",
-            "column_order": 1
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "list user groups",
-        "description": "Get the groups that the user is a member of",
-        "type": "investigate",
-        "identifier": "get_user_groups",
-        "read_only": true,
-        "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
-        "parameters": {
-          "username": { 
-            "description": "Username (to get goups it belongs to)",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["user name"],
-            "primary": true,
-            "required": true
-          }
+        {
+            "action": "set system attribute",
+            "description": "Set the value of an attribute of a computer/system",
+            "type": "contain",
+            "identifier": "set_system_attribute",
+            "read_only": false,
+            "parameters": {
+                "hostname": {
+                    "description": "Hostname (to set the attribute of)",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "host name"
+                    ],
+                    "primary": true,
+                    "required": true
+                },
+                "ph": {
+                    "data_type": "ph",
+                    "order": 1
+                },
+                "attribute_name": {
+                    "description": "Attribute name to modify",
+                    "data_type": "string",
+                    "order": 2,
+                    "required": true
+                },
+                "attribute_value": {
+                    "description": "Attribute value to set",
+                    "data_type": "string",
+                    "order": 3,
+                    "required": true
+                }
+            },
+            "render": {
+                "width": 12,
+                "title": "Set System Attribute",
+                "type": "table",
+                "height": 5
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.hostname",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ],
+                    "column_name": "Host Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.attribute_name",
+                    "data_type": "string",
+                    "column_name": "Attribute Name",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.attribute_value",
+                    "data_type": "string",
+                    "column_name": "Attribute Value",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "Message",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "column_name": "Total Objects"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "column_name": "Total Objects Successful"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "render": {
-          "type": "table",
-          "width": 12,
-          "height": 5,
-          "title": "Group Membership"
+        {
+            "action": "get user attributes",
+            "description": "Gets the attributes of a user",
+            "type": "investigate",
+            "identifier": "get_user_attributes",
+            "read_only": true,
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>In addition to the above formats and attributes that are matched against, the action also supports matching against an arbitary attribute, the name of which can be specified in the <b>attribute</b> parameter. For example to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error. Please see the ldap_app playbook in the community repo for examples.",
+            "parameters": {
+                "username": {
+                    "description": "Username or Attribute value to match",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "user name"
+                    ],
+                    "primary": true,
+                    "required": true
+                },
+                "attribute": {
+                    "description": "Attribute name to match",
+                    "data_type": "string",
+                    "order": 1,
+                    "primary": false,
+                    "required": false
+                },
+                "fields": {
+                    "data_type": "string",
+                    "order": 2,
+                    "description": "Get fields (comma separated)",
+                    "required": false
+                }
+            },
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "List Attributes"
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.username",
+                    "data_type": "string",
+                    "contains": [
+                        "user name"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.fields",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.attribute",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string",
+                    "column_name": "Display Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.distinguishedname",
+                    "data_type": "string",
+                    "column_name": "Distinguished Name",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.lastlogon",
+                    "data_type": "string",
+                    "column_name": "Last Logon",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.lastlogoff",
+                    "data_type": "string",
+                    "column_name": "Last Logoff",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.data.*.logoncount",
+                    "data_type": "string",
+                    "column_name": "Logon Count",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.data.*.memberof",
+                    "data_type": "string",
+                    "column_name": "Member Of",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.data.*.badpwdcount",
+                    "data_type": "string",
+                    "column_name": "Bad Pwd Count",
+                    "column_order": 6
+                },
+                {
+                    "data_path": "action_result.data.*.mail",
+                    "data_type": "string",
+                    "column_name": "E-Mail",
+                    "column_order": 7,
+                    "contains": [
+                        "email"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.title",
+                    "data_type": "string",
+                    "column_name": "Title",
+                    "column_order": 8
+                },
+                {
+                    "data_path": "action_result.data.*.streetaddress",
+                    "data_type": "string",
+                    "column_name": "Street",
+                    "column_order": 9
+                },
+                {
+                    "data_path": "action_result.data.*.l",
+                    "data_type": "string",
+                    "column_name": "City",
+                    "column_order": 10
+                },
+                {
+                    "data_path": "action_result.data.*.st",
+                    "data_type": "string",
+                    "column_name": "State",
+                    "column_order": 11
+                },
+                {
+                    "data_path": "action_result.data.*.postalcode",
+                    "data_type": "string",
+                    "column_name": "Zip",
+                    "column_order": 12
+                },
+                {
+                    "data_path": "action_result.data.*.co",
+                    "data_type": "string",
+                    "column_name": "Country",
+                    "column_order": 13
+                },
+                {
+                    "data_path": "action_result.data.*.accountexpires",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.badpasswordtime",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.countrycode",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.objectcategory",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.objectclass",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.objectguid",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.primarygroupid",
+                    "data_type": "string",
+                    "column_name": "Primary Group Id",
+                    "column_order": 14
+                },
+                {
+                    "data_path": "action_result.data.*.pwdlastset",
+                    "data_type": "string",
+                    "column_name": "Pwd Last Set",
+                    "column_order": 15
+                },
+                {
+                    "data_path": "action_result.data.*.useraccountcontrol",
+                    "data_type": "string",
+                    "column_name": "User Account Control",
+                    "column_order": 16
+                },
+                {
+                    "data_path": "action_result.data.*.userprincipalname",
+                    "data_type": "string",
+                    "column_name": "User Principal Name",
+                    "contains": [
+                        "email"
+                    ],
+                    "column_order": 17
+                },
+                {
+                    "data_path": "action_result.data.*.objectsid",
+                    "data_type": "string",
+                    "column_name": "Object SID",
+                    "column_order": 18
+                },
+                {
+                    "data_path": "action_result.data.*.whenchanged",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.whencreated",
+                    "data_type": "string",
+                    "column_name": "When Created",
+                    "column_order": 19
+                },
+                {
+                    "data_path": "action_result.data.*.cn",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.codepage",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.dscorepropagationdata",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.givenname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.instancetype",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.samaccountname",
+                    "data_type": "string",
+                    "column_name": "Username",
+                    "contains": [
+                        "user name"
+                    ],
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.samaccounttype",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.sn",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.usnchanged",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.usncreated",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.telephoneNumber",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.manager",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.company",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.department",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.postOfficeBox",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.password_last_set",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.bad_password_count",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.last_logon",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.state",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.username",
-            "data_type": "string",
-            "column_name": "Username",
-            "column_order": 0,
-            "contains": [ "user name" ]
-          },
-          {
-            "data_path": "action_result.data.*.group",
-            "data_type": "string",
-            "column_name": "Groups",
-            "column_order": 1
-          },
-          {
-            "data_path": "action_result.summary.total_groups",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "change system ou",
-        "description": "Change the OU of a computer/system",
-        "type": "contain",
-        "identifier": "change_system_ou",
-        "read_only": false,
-        "parameters": {
-          "hostname": { 
-            "description": "Hostname",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["host name"],
-            "primary": true,
-            "required": true
-          },
-          "ou": { 
-            "description": "OU to change to",
-            "data_type": "string",
-            "order": 1,
-            "required": true
-          }
+        {
+            "action": "get system attributes",
+            "description": "Gets the attributes of a computer/system",
+            "type": "investigate",
+            "identifier": "get_system_attributes",
+            "read_only": true,
+            "parameters": {
+                "hostname": {
+                    "description": "Hostname to query the attributes of",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "host name"
+                    ],
+                    "primary": true,
+                    "required": true
+                },
+                "fields": {
+                    "data_type": "string",
+                    "order": 4,
+                    "description": "Get fields (comma separated)",
+                    "required": false
+                }
+            },
+            "render": {
+                "type": "table",
+                "width": 12,
+                "height": 5,
+                "title": "List Attributes"
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "column_name": "Name",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.dnshostname",
+                    "data_type": "string",
+                    "column_name": "DNS Hostname",
+                    "contains": [
+                        "host name"
+                    ],
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.distinguishedname",
+                    "data_type": "string",
+                    "column_name": "Distinguished Name",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.objectcategory",
+                    "data_type": "string",
+                    "column_name": "Object Category",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.data.*.objectclass",
+                    "data_type": "string",
+                    "column_name": "Object Class",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.data.*.objectguid",
+                    "data_type": "string",
+                    "column_name": "Object Guid",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.data.*.countrycode",
+                    "data_type": "string",
+                    "column_name": "Country Code",
+                    "column_order": 6
+                },
+                {
+                    "data_path": "action_result.data.*.lastlogoff",
+                    "data_type": "string",
+                    "column_name": "Last Logoff",
+                    "column_order": 7
+                },
+                {
+                    "data_path": "action_result.data.*.lastlogon",
+                    "data_type": "string",
+                    "column_name": "Last Logon",
+                    "column_order": 8
+                },
+                {
+                    "data_path": "action_result.data.*.lastlogontimestamp",
+                    "data_type": "string",
+                    "column_name": "Last Logon Timestamp",
+                    "column_order": 9
+                },
+                {
+                    "data_path": "action_result.data.*.localpolicyflags",
+                    "data_type": "string",
+                    "column_name": "Local Policy Flags",
+                    "column_order": 10
+                },
+                {
+                    "data_path": "action_result.data.*.logoncount",
+                    "data_type": "string",
+                    "column_name": "Logon Count",
+                    "column_order": 11
+                },
+                {
+                    "data_path": "action_result.data.*.netbootguid",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.netbootmirrordatafile",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.objectsid",
+                    "data_type": "string",
+                    "column_name": "Object SID",
+                    "column_order": 14
+                },
+                {
+                    "data_path": "action_result.data.*.operatingsystem",
+                    "data_type": "string",
+                    "column_name": "OS",
+                    "column_order": 15
+                },
+                {
+                    "data_path": "action_result.data.*.operatingsystemservicepack",
+                    "data_type": "string",
+                    "column_name": "Service Pack",
+                    "column_order": 16
+                },
+                {
+                    "data_path": "action_result.data.*.operatingsystemversion",
+                    "data_type": "string",
+                    "column_name": "OS Version",
+                    "column_order": 17
+                },
+                {
+                    "data_path": "action_result.data.*.primarygroupid",
+                    "data_type": "string",
+                    "column_name": "Primary Group ID",
+                    "column_order": 18
+                },
+                {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.cn",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.pwdlastset",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.samaccountname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.samaccounttype",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.accountexpires",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.badpasswordtime",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.badpwdcount",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.codepage",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.dscorepropagationdata",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.instancetype",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.iscriticalsystemobject",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.ms-ds-creatorsid",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.serviceprincipalname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.usnchanged",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.usncreated",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.useraccountcontrol",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.whenchanged",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.whencreated",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.os",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.fields",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.hostname",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ]
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "render": {
-          "width": 12,
-          "title": "Change System OU",
-          "type": "table",
-          "height": 5
+        {
+            "action": "set password",
+            "description": "Set the password of a user",
+            "type": "contain",
+            "identifier": "set_password",
+            "read_only": false,
+            "verbose": "Note that a user currently logged on will stay logged in. The LDAP server may refuse to accept the password unless the connection is over SSL. <p class=\"warn\">Exercise caution when using this Action. The password may be kept and logged in clear text.</p>",
+            "parameters": {
+                "username": {
+                    "description": "Username to change password of",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "user name"
+                    ],
+                    "primary": true,
+                    "required": true
+                },
+                "new_password": {
+                    "description": "Password string to set",
+                    "data_type": "string",
+                    "order": 1,
+                    "required": true
+                }
+            },
+            "render": {
+                "width": 12,
+                "title": "Set Password",
+                "type": "table",
+                "height": 5
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.username",
+                    "data_type": "string",
+                    "column_name": "Username",
+                    "contains": [
+                        "user name"
+                    ],
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.new_password",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "Message",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.hostname",
-            "data_type": "string",
-            "contains": ["host name"],
-            "column_name": "Host Name",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.parameter.ou",
-            "data_type": "string",
-            "column_name": "Destination OU",
-            "column_order": 1
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string",
-            "column_name": "Message",
-            "column_order": 2
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "set system attribute",
-        "description": "Set the value of an attribute of a computer/system",
-        "type": "contain",
-        "identifier": "set_system_attribute",
-        "read_only": false,
-        "parameters": {
-          "hostname": { 
-            "description": "Hostname (to set the attribute of)",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["host name"],
-            "primary": true,
-            "required": true
-          },
-          "ph": { 
-            "data_type": "ph",
-            "order": 1
-          },
-          "attribute_name": { 
-            "description": "Attribute name to modify",
-            "data_type": "string",
-            "order": 2,
-            "required": true
-          },
-          "attribute_value": { 
-            "description": "Attribute value to set",
-            "data_type": "string",
-            "order": 3,
-            "required": true
-          }
+        {
+            "action": "reset password",
+            "description": "Force the user to change the password at the next logon",
+            "type": "contain",
+            "identifier": "reset_password",
+            "read_only": false,
+            "verbose": "Once the password is reset, the user is required to login and enter the new password interactively. Therefore auto logins (from applications) will fail.",
+            "parameters": {
+                "username": {
+                    "description": "Username to enforce 'change password at next logon'",
+                    "data_type": "string",
+                    "order": 0,
+                    "contains": [
+                        "user name"
+                    ],
+                    "primary": true,
+                    "required": true
+                }
+            },
+            "render": {
+                "width": 12,
+                "title": "Reset Password",
+                "type": "table",
+                "height": 5
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.username",
+                    "data_type": "string",
+                    "column_name": "Username",
+                    "contains": [
+                        "user name"
+                    ],
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "Message",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
         },
-        "render": {
-          "width": 12,
-          "title": "Set System Attribute",
-          "type": "table",
-          "height": 5
-        },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.hostname",
-            "data_type": "string",
-            "contains": ["host name"],
-            "column_name": "Host Name",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.parameter.attribute_name",
-            "data_type": "string",
-            "column_name": "Attribute Name",
-            "column_order": 1
-          },
-          {
-            "data_path": "action_result.parameter.attribute_value",
-            "data_type": "string",
-            "column_name": "Attribute Value",
-            "column_order": 2
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string",
-            "column_name": "Message",
-            "column_order": 3
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric",
-            "column_name": "Total Objects"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric",
-            "column_name": "Total Objects Successful"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "get user attributes",
-        "description": "Gets the attributes of a user",
-        "type": "investigate",
-        "identifier": "get_user_attributes",
-        "read_only": true,
-        "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>In addition to the above formats and attributes that are matched against, the action also supports matching against an arbitary attribute, the name of which can be specified in the <b>attribute</b> parameter. For example to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error. Please see the ldap_app playbook in the community repo for examples.",
-        "parameters": {
-          "username": { 
-            "description": "Username or Attribute value to match",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["user name"],
-            "primary": true,
-            "required": true
-          },
-          "attribute": { 
-            "description": "Attribute name to match",
-            "data_type": "string",
-            "order": 1,
-            "primary": false,
-            "required": false
-          },
-          "fields": {
-            "data_type": "string",
-            "order": 2,
-            "description": "Get fields (comma separated)",
-            "required": false
-          }
-        },
-        "render": {
-          "type": "table",
-          "width": 12,
-          "height": 5,
-          "title": "List Attributes"
-        },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.username",
-            "data_type": "string",
-            "contains": ["user name"]
-          },
-          {
-            "data_path": "action_result.parameter.fields",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.attribute",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.displayname",
-            "data_type": "string",
-            "column_name": "Display Name",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.data.*.distinguishedname",
-            "data_type": "string",
-            "column_name": "Distinguished Name",
-            "column_order": 1
-          },
-          {
-            "data_path": "action_result.data.*.lastlogon",
-            "data_type": "string",
-            "column_name": "Last Logon",
-            "column_order": 2
-          },
-          {
-            "data_path": "action_result.data.*.lastlogoff",
-            "data_type": "string",
-            "column_name": "Last Logoff",
-            "column_order": 3
-          },
-          {
-            "data_path": "action_result.data.*.logoncount",
-            "data_type": "string",
-            "column_name": "Logon Count",
-            "column_order": 4
-          },
-          {
-            "data_path": "action_result.data.*.memberof",
-            "data_type": "string",
-            "column_name": "Member Of",
-            "column_order": 5
-          },
-          {
-            "data_path": "action_result.data.*.badpwdcount",
-            "data_type": "string",
-            "column_name": "Bad Pwd Count",
-            "column_order": 6
-          },
-          {
-            "data_path": "action_result.data.*.mail",
-            "data_type": "string",
-            "column_name": "E-Mail",
-            "column_order": 7,
-            "contains": [ "email" ]
-          },
-          {
-            "data_path": "action_result.data.*.title", 
-            "data_type": "string",
-            "column_name": "Title",
-            "column_order": 8
-
-          },
-          {
-            "data_path": "action_result.data.*.streetaddress", 
-            "data_type": "string",
-            "column_name": "Street",
-            "column_order": 9
-          },
-          {
-            "data_path": "action_result.data.*.l", 
-            "data_type": "string",
-            "column_name": "City",
-            "column_order": 10
-          },
-          {
-            "data_path": "action_result.data.*.st", 
-            "data_type": "string",
-            "column_name": "State",
-            "column_order": 11
-          },
-          {
-            "data_path": "action_result.data.*.postalcode", 
-            "data_type": "string",
-            "column_name": "Zip",
-            "column_order": 12
-          },
-          {
-            "data_path": "action_result.data.*.co", 
-            "data_type": "string",
-            "column_name": "Country",
-            "column_order": 13
-          },
-          {
-            "data_path": "action_result.data.*.accountexpires",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.badpasswordtime",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.countrycode",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.objectcategory",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.objectclass",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.objectguid",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.primarygroupid",
-            "data_type": "string",
-            "column_name": "Primary Group Id",
-            "column_order": 14
-          },
-          {
-            "data_path": "action_result.data.*.pwdlastset",
-            "data_type": "string",
-            "column_name": "Pwd Last Set",
-            "column_order": 15
-          },
-          {
-            "data_path": "action_result.data.*.useraccountcontrol",
-            "data_type": "string",
-            "column_name": "User Account Control",
-            "column_order": 16
-          },
-          {
-            "data_path": "action_result.data.*.userprincipalname",
-            "data_type": "string",
-            "column_name": "User Principal Name",
-            "contains": [ "email" ],
-            "column_order": 17
-          },
-          {
-            "data_path": "action_result.data.*.objectsid",
-            "data_type": "string",
-            "column_name": "Object SID",
-            "column_order": 18
-          },
-          {
-            "data_path": "action_result.data.*.whenchanged",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.whencreated",
-            "data_type": "string",
-            "column_name": "When Created",
-            "column_order": 19
-          },
-          {
-            "data_path": "action_result.data.*.cn",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.codepage",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.dscorepropagationdata",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.givenname",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.instancetype",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.name",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.samaccountname",
-            "data_type": "string",
-            "column_name": "Username",
-            "contains": [ "user name" ],
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.data.*.samaccounttype",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.sn",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.usnchanged",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.usncreated",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.telephoneNumber",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.manager", 
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.company", 
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.department", 
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.postOfficeBox",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.summary.password_last_set",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.summary.bad_password_count",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.summary.last_logon",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.summary.state",
-            "data_type": "string"
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "get system attributes",
-        "description": "Gets the attributes of a computer/system",
-        "type": "investigate",
-        "identifier": "get_system_attributes",
-        "read_only": true,
-        "parameters": {
-          "hostname": { 
-            "description": "Hostname to query the attributes of",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["host name"],
-            "primary": true,
-            "required": true
-          },
-          "fields": {
-            "data_type": "string",
-            "order": 4,
-            "description": "Get fields (comma separated)",
-            "required": false
-          }
-        },
-        "render": {
-          "type": "table",
-          "width": 12,
-          "height": 5,
-          "title": "List Attributes"
-        },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.name",
-            "data_type": "string",
-            "column_name": "Name",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.data.*.dnshostname",
-            "data_type": "string",
-            "column_name": "DNS Hostname",
-            "contains": [ "host name" ],
-            "column_order": 1
-          },
-          {
-            "data_path": "action_result.data.*.distinguishedname",
-            "data_type": "string",
-            "column_name": "Distinguished Name",
-            "column_order": 2
-          },
-          {
-            "data_path": "action_result.data.*.objectcategory",
-            "data_type": "string",
-            "column_name": "Object Category",
-            "column_order": 3
-          },
-          {
-            "data_path": "action_result.data.*.objectclass",
-            "data_type": "string",
-            "column_name": "Object Class",
-            "column_order": 4
-          },
-          {
-            "data_path": "action_result.data.*.objectguid",
-            "data_type": "string",
-            "column_name": "Object Guid",
-            "column_order": 5
-          },
-          {
-            "data_path": "action_result.data.*.countrycode",
-            "data_type": "string",
-            "column_name": "Country Code",
-            "column_order": 6
-          },
-          {
-            "data_path": "action_result.data.*.lastlogoff",
-            "data_type": "string",
-            "column_name": "Last Logoff",
-            "column_order": 7
-          },
-          {
-            "data_path": "action_result.data.*.lastlogon",
-            "data_type": "string",
-            "column_name": "Last Logon",
-            "column_order": 8
-          },
-          {
-            "data_path": "action_result.data.*.lastlogontimestamp",
-            "data_type": "string",
-            "column_name": "Last Logon Timestamp",
-            "column_order": 9
-          },
-          {
-            "data_path": "action_result.data.*.localpolicyflags",
-            "data_type": "string",
-            "column_name": "Local Policy Flags",
-            "column_order": 10
-          },
-          {
-            "data_path": "action_result.data.*.logoncount",
-            "data_type": "string",
-            "column_name": "Logon Count",
-            "column_order": 11
-          },
-          {
-            "data_path": "action_result.data.*.netbootguid",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.netbootmirrordatafile",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.objectsid",
-            "data_type": "string",
-            "column_name": "Object SID",
-            "column_order": 14
-          },
-          {
-            "data_path": "action_result.data.*.operatingsystem",
-            "data_type": "string",
-            "column_name": "OS",
-            "column_order": 15
-          },
-          {
-            "data_path": "action_result.data.*.operatingsystemservicepack",
-            "data_type": "string",
-            "column_name": "Service Pack",
-            "column_order": 16
-          },
-          {
-            "data_path": "action_result.data.*.operatingsystemversion",
-            "data_type": "string",
-            "column_name": "OS Version",
-            "column_order": 17
-          },
-          {
-            "data_path": "action_result.data.*.primarygroupid",
-            "data_type": "string",
-            "column_name": "Primary Group ID",
-            "column_order": 18
-          },
-          {
-            "data_path": "action_result.data.*.displayname",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.cn",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.pwdlastset",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.samaccountname",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.samaccounttype",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.accountexpires",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.badpasswordtime",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.badpwdcount",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.codepage",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.dscorepropagationdata",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.instancetype",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.iscriticalsystemobject",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.ms-ds-creatorsid",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.serviceprincipalname",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.usnchanged",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.usncreated",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.useraccountcontrol",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.whenchanged",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.whencreated",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.summary.os",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.fields",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.hostname",
-            "data_type": "string",
-            "contains": ["host name"]
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "set password",
-        "description": "Set the password of a user",
-        "type": "contain",
-        "identifier": "set_password",
-        "read_only": false,
-        "verbose": "Note that a user currently logged on will stay logged in. The LDAP server may refuse to accept the password unless the connection is over SSL. <p class=\"warn\">Exercise caution when using this Action. The password may be kept and logged in clear text.</p>",
-        "parameters": {
-          "username": { 
-            "description": "Username to change password of",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["user name"],
-            "primary": true,
-            "required": true
-          },
-          "new_password": {
-            "description": "Password string to set",
-            "data_type": "string",
-            "order": 1,
-            "required": true
-          }
-        },
-        "render": {
-          "width": 12,
-          "title": "Set Password",
-          "type": "table",
-          "height": 5
-        },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.username",
-            "data_type": "string",
-            "column_name": "Username",
-            "contains": ["user name"],
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.parameter.new_password",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string",
-            "column_name": "Message",
-            "column_order": 1
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "reset password",
-        "description": "Force the user to change the password at the next logon",
-        "type": "contain",
-        "identifier": "reset_password",
-        "read_only": false,
-        "verbose": "Once the password is reset, the user is required to login and enter the new password interactively. Therefore auto logins (from applications) will fail.",
-        "parameters": {
-          "username": { 
-            "description": "Username to enforce 'change password at next logon'",
-            "data_type": "string",
-            "order": 0,
-            "contains": ["user name"],
-            "primary": true,
-            "required": true
-          }
-        },
-        "render": {
-          "width": 12,
-          "title": "Reset Password",
-          "type": "table",
-          "height": 5
-        },
-        "output": [
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.username",
-            "data_type": "string",
-            "column_name": "Username",
-            "contains": ["user name"],
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string",
-            "column_name": "Message",
-            "column_order": 1
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      },
-      {
-        "action" : "get users",
-        "description": "Get the list of users",
-        "verbose": "Use this action to get a list of users. If the <b>all_users</b> parameter is set to <b>True</b>, the action will list all users in the enterprise.<br>To list users that belong to a specific group, ou or container (known as objects), set the <b>all_users</b> to <b>False</b> and the <b>object_name</b> and <b>object_class</b> (both required in this case) parameters to the required values.<br>The list of object </b>classes</b> is supplied, one of which the user may choose as the value for the <b>object_class</b> parameter, these are:<br><ul><li>container</li><li>organizationalUnit</li><li>group</li></ul>When executing the action from a playbook, the author can look up arbitary object classes by supplying the desired class as a string for the <b>object_class</b> parameter.<br>The action will first query the system for the <b>Base DN</b> of the object (using the name and class). The action will fail if an object with the specified <b>object_name</b> belonging to the specified <b>object_class</b> is not found.<br>Some examples:<br><ul><li>To find all users in an Organizational Unit(OU) named <i>UsersOU</i><br><b>all_users</b>: False<br><b>object_name</b>: UsersOu<br><b>object_class</b>: organizationalUnit<br></li><li>To find all users in a Container named <i>Users</i> (Default container found in most AD installations)<br><b>all_users</b>: False<br><b>object_name</b>: Users<br><b>object_class</b>: container<br></li><li>To find all users in the complete enterprise<br><b>all_users</b>: True<br></li></ul>",
-        "type": "investigate",
-        "identifier": "get_users",
-        "read_only": true,
-        "parameters": {
-          "all_users": {
-            "order": 0,
-            "data_type": "boolean",
-            "description": "Get All Users (other params are ignored if set)",
-            "required": true,
-            "default": false
-          },
-          "ph": { 
-            "data_type": "ph",
-            "order": 1
-          },
-          "object_name": { 
-            "description": "Object name to query the users of",
-            "data_type": "string",
-            "order": 2,
-            "required": false,
-            "default": "Users"
-          },
-          "object_class": { 
-            "description": "Object type to query for",
-            "data_type": "string",
-            "order": 3,
-            "required": false,
-            "value_list": ["container", "organizationalUnit", "group"],
-            "default": "container"
-          }
-        },
-        "render": {
-          "width": 12,
-          "title": "List Users",
-          "type": "table",
-          "height": 5
-        },
-        "output": [
-          {
-            "data_path": "action_result.parameter.object_name",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.object_class",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.parameter.all_users",
-            "data_type": "boolean"
-          },
-          {
-            "data_path": "action_result.data.*.dn",
-            "data_type": "string",
-            "column_name": "User DN",
-            "column_order": 0
-          },
-          {
-            "data_path": "action_result.data.*.emails",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.data.*.emails.0",
-            "data_type": "string",
-            "column_name": "First Email",
-            "contains": ["email"],
-            "column_order": 1
-          },
-          {
-            "data_path": "action_result.data.*.displayname",
-            "data_type": "string",
-            "column_name": "Display Name",
-            "column_order": 2
-          },
-          {
-            "data_path": "action_result.data.*.samaccountname",
-            "data_type": "string",
-            "column_name": "SamAccount Name",
-            "column_order": 2
-          },
-          {
-            "data_path": "action_result.status",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.message",
-            "data_type": "string"
-          },
-          {
-            "data_path": "action_result.summary.total_users",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects",
-            "data_type": "numeric"
-          },
-          {
-            "data_path": "summary.total_objects_successful",
-            "data_type": "numeric"
-          }
-        ],
-        "versions":"EQ(*)"
-      } 
+        {
+            "action": "get users",
+            "description": "Get the list of users",
+            "verbose": "Use this action to get a list of users. Only users that have email addresses will be returned. If the <b>all_users</b> parameter is set to <b>True</b>, the action will list all users in the enterprise and ignore the <b>object_name</b> and <b>object_class</b> parameters. To list users that belong to a specific <i>group</i>, <i>organizationalUnit</i> or <i>container</i> (known as objects), set the <b>all_users</b> parameter to <b>False</b> and the <b>object_name</b> and <b>object_class</b> (both required in this case) parameters to the required values.<br>A list of object classes is supplied, one of which the user may choose as the value for the <b>object_class</b> parameter, these are:<br><ul><li>container</li><li>organizationalUnit</li><li>group</li></ul>When executing the action from a playbook, the author can look up arbitary object classes by supplying the desired class as a string for the <b>object_class</b> parameter.<br>The action will first query the system for the <i>dn</i> of the object (using the name and class). The action will fail if an object with the specified <b>object_name</b> belonging to the specified <b>object_class</b> is not found. If the <b>object_class</b> equals \"group\" then the returned group will be used to populate a query filter that returns all users with a <i>memberOf</i> attribute equal to the full <i>dn</i> of the group with that name. If the <b>object_class</b> is any string other than \"group\" (such as \"container\" or \"organizationalUnit\") then the <i>dn</i> returned from the first query will be used as the <i>base_dn</i> of the User query.<br>Some examples:<br><ul><li>To find all users in an Organizational Unit(OU) named <i>UsersOU</i><br><b>all_users</b>: False<br><b>object_name</b>: UsersOu<br><b>object_class</b>: organizationalUnit<br></li><li>To find all users in a Container named <i>Users</i> (Default container found in most AD installations)<br><b>all_users</b>: False<br><b>object_name</b>: Users<br><b>object_class</b>: container<br></li><li>To find all users in the group named <i>Enterprise Admins</i> (one of the most powerful default AD groups)<br><b>all_users</b>: False<br><b>object_name</b>: Enterprise Admins<br><b>object_class</b>: group<br></li><li>To find all users in the complete enterprise<br><b>all_users</b>: True<br></li></ul>",
+            "type": "investigate",
+            "identifier": "get_users",
+            "read_only": true,
+            "parameters": {
+                "all_users": {
+                    "order": 0,
+                    "data_type": "boolean",
+                    "description": "Get All Users (other params are ignored if set)",
+                    "required": true,
+                    "default": false
+                },
+                "ph": {
+                    "data_type": "ph",
+                    "order": 1
+                },
+                "object_name": {
+                    "description": "Object name to query the users of",
+                    "data_type": "string",
+                    "order": 2,
+                    "required": false,
+                    "default": "Users"
+                },
+                "object_class": {
+                    "description": "Object class to query the users of",
+                    "data_type": "string",
+                    "order": 3,
+                    "required": false,
+                    "value_list": [
+                        "container",
+                        "organizationalUnit",
+                        "group"
+                    ],
+                    "default": "container"
+                }
+            },
+            "render": {
+                "width": 12,
+                "title": "List Users",
+                "type": "table",
+                "height": 5
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.object_name",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.object_class",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.all_users",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.dn",
+                    "data_type": "string",
+                    "column_name": "User DN",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.emails",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.emails.0",
+                    "data_type": "string",
+                    "column_name": "First Email",
+                    "contains": [
+                        "email"
+                    ],
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string",
+                    "column_name": "Display Name",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.samaccountname",
+                    "data_type": "string",
+                    "column_name": "SamAccount Name",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.total_users",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "versions": "EQ(*)"
+        }
     ]
 }

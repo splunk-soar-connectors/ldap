@@ -1,7 +1,7 @@
 # --
 # File: ldap_connector.py
 #
-# Copyright (c) Phantom Cyber Corporation, 2014-2016
+# Copyright (c) Phantom Cyber Corporation, 2014-2017
 #
 # This unpublished material is proprietary to Phantom Cyber.
 # All rights reserved. The methods and
@@ -1038,6 +1038,7 @@ class LdapConnector(BaseConnector):
 
         if (all_users):
             dn_to_query = self.__base_dn
+            search_filter = '(&(objectClass=User)(mail=*))'
         else:
             obj_name = param.get(LDAP_JSON_OBJECT_NAME)
             obj_class = param.get(LDAP_JSON_OBJECT_CLASS)
@@ -1055,9 +1056,15 @@ class LdapConnector(BaseConnector):
             if (phantom.is_fail(ret_val)):
                 return action_result.get_status()
 
-        search_filter = '(&(objectClass=User)(mail=*))'
-
-        # print "Search Filter: " + search_filter
+            # users are memberOf groups, not subclasses of groups, so if obj_class == group we need to add
+            # memberOf=group_base_dn as a search filter and reset dn_to_query back to __base_dn
+            if obj_class == 'group':
+                group_base_dn = dn_to_query
+                search_filter = '(&(objectClass=User)(mail=*)(memberOf={}))'.format(group_base_dn)
+                dn_to_query = self.__base_dn
+            # otherwise nothing is added to the search filter and the new dn_to_query is used as the base_dn
+            else:
+                search_filter = '(&(objectClass=User)(mail=*))'
 
         # The attribute that we are interested in
         attr_list = ['mail', 'displayname', 'samaccountname']
@@ -1096,8 +1103,14 @@ class LdapConnector(BaseConnector):
             user = action_result.add_data({'dn': user_dn})
 
             user['emails'] = user_info.get('mail', [])
-            user['displayname'] = user_info.get('displayName', [])[0]
-            user['samaccountname'] = user_info.get('sAMAccountName', [])[0]
+            try:
+                user['displayname'] = user_info.get('displayName', [])[0]
+            except:
+                pass
+            try:
+                user['samaccountname'] = user_info.get('sAMAccountName', [])[0]
+            except:
+                pass
 
         action_result.update_summary({LDAP_JSON_TOTAL_USERS: action_result.get_data_size()})
 

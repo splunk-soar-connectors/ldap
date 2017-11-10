@@ -318,7 +318,7 @@ class LdapConnector(BaseConnector):
         else:
             valid_keys.extend(required_keys)
 
-        bin_string_keys = ['logonhours', 'objectsid', 'objectguid']
+        bin_string_keys = ['logonhours', 'objectsid', 'objectguid', 'msexchmailboxsecuritydescriptor', 'msexchmailboxguid']
 
         try:
 
@@ -1170,6 +1170,7 @@ class LdapConnector(BaseConnector):
             # Unbind
             self.__ldap_conn.unbind_s()
             self.__ldap_conn = None
+
 
 if __name__ == '__main__':
 

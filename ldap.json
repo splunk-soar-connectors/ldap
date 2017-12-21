@@ -12,7 +12,8 @@
     "product_name": "Windows Server",
     "product_version_regex": ".*",
     "min_phantom_version": "3.0.247",
-    "logo": "microsoft_logo.png",
+    "logo": "logo_microsoft.svg",
+    "logo_dark": "logo_microsoft_dark.svg",
     "license": "Copyright (c) Phantom Cyber Corporation 2015-2017",
     "configuration": {
         "server": {

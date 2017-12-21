@@ -5,15 +5,14 @@
     "publisher": "Phantom",
     "type": "directory service",
     "main_module": "ldap_connector.pyc",
-    "app_version": "1.2.32",
-    "utctime_updated": "2017-12-21T03:23:52.000000Z",
+    "app_version": "1.2.30",
+    "utctime_updated": "2017-10-07T01:39:19.000000Z",
     "package_name": "phantom_ldap",
     "product_vendor": "Microsoft",
     "product_name": "Windows Server",
     "product_version_regex": ".*",
     "min_phantom_version": "3.0.247",
-    "logo": "logo_microsoft.svg",
-    "logo_dark": "logo_microsoft_dark.svg",
+    "logo": "microsoft_logo.png",
     "license": "Copyright (c) Phantom Cyber Corporation 2015-2017",
     "configuration": {
         "server": {
@@ -198,6 +197,10 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "column_name": "Username",
@@ -215,10 +218,6 @@
                 {
                     "data_path": "action_result.summary.total_groups",
                     "data_type": "numeric"
-                },
-                {
-                    "data_path": "action_result.message",
-                    "data_type": "string"
                 },
                 {
                     "data_path": "summary.total_objects",
@@ -344,6 +343,15 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.parameter.hostname",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ],
+                    "column_name": "Host Name",
+                    "column_order": 0
+                },
+                {
                     "data_path": "action_result.parameter.attribute_name",
                     "data_type": "string",
                     "column_name": "Attribute Name",
@@ -354,15 +362,6 @@
                     "data_type": "string",
                     "column_name": "Attribute Value",
                     "column_order": 2
-                },
-                {
-                    "data_path": "action_result.parameter.hostname",
-                    "data_type": "string",
-                    "contains": [
-                        "host name"
-                    ],
-                    "column_name": "Host Name",
-                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.message",
@@ -427,11 +426,7 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.attribute",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.fields",
+                    "data_path": "action_result.message",
                     "data_type": "string"
                 },
                 {
@@ -442,43 +437,11 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.accountexpires",
+                    "data_path": "action_result.parameter.fields",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.badpasswordtime",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.badpwdcount",
-                    "data_type": "string",
-                    "column_name": "Bad Pwd Count",
-                    "column_order": 6
-                },
-                {
-                    "data_path": "action_result.data.*.cn",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.co",
-                    "data_type": "string",
-                    "column_name": "Country",
-                    "column_order": 13
-                },
-                {
-                    "data_path": "action_result.data.*.codepage",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.company",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.countrycode",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.department",
+                    "data_path": "action_result.parameter.attribute",
                     "data_type": "string"
                 },
                 {
@@ -494,22 +457,10 @@
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.data.*.dscorepropagationdata",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.givenname",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.instancetype",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.l",
+                    "data_path": "action_result.data.*.lastlogon",
                     "data_type": "string",
-                    "column_name": "City",
-                    "column_order": 10
+                    "column_name": "Last Logon",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.data.*.lastlogoff",
@@ -518,16 +469,22 @@
                     "column_order": 3
                 },
                 {
-                    "data_path": "action_result.data.*.lastlogon",
-                    "data_type": "string",
-                    "column_name": "Last Logon",
-                    "column_order": 2
-                },
-                {
                     "data_path": "action_result.data.*.logoncount",
                     "data_type": "string",
                     "column_name": "Logon Count",
                     "column_order": 4
+                },
+                {
+                    "data_path": "action_result.data.*.memberof",
+                    "data_type": "string",
+                    "column_name": "Member Of",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.data.*.badpwdcount",
+                    "data_type": "string",
+                    "column_name": "Bad Pwd Count",
+                    "column_order": 6
                 },
                 {
                     "data_path": "action_result.data.*.mail",
@@ -539,17 +496,51 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.manager",
+                    "data_path": "action_result.data.*.title",
+                    "data_type": "string",
+                    "column_name": "Title",
+                    "column_order": 8
+                },
+                {
+                    "data_path": "action_result.data.*.streetaddress",
+                    "data_type": "string",
+                    "column_name": "Street",
+                    "column_order": 9
+                },
+                {
+                    "data_path": "action_result.data.*.l",
+                    "data_type": "string",
+                    "column_name": "City",
+                    "column_order": 10
+                },
+                {
+                    "data_path": "action_result.data.*.st",
+                    "data_type": "string",
+                    "column_name": "State",
+                    "column_order": 11
+                },
+                {
+                    "data_path": "action_result.data.*.postalcode",
+                    "data_type": "string",
+                    "column_name": "Zip",
+                    "column_order": 12
+                },
+                {
+                    "data_path": "action_result.data.*.co",
+                    "data_type": "string",
+                    "column_name": "Country",
+                    "column_order": 13
+                },
+                {
+                    "data_path": "action_result.data.*.accountexpires",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.memberof",
-                    "data_type": "string",
-                    "column_name": "Member Of",
-                    "column_order": 5
+                    "data_path": "action_result.data.*.badpasswordtime",
+                    "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.name",
+                    "data_path": "action_result.data.*.countrycode",
                     "data_type": "string"
                 },
                 {
@@ -565,22 +556,6 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.objectsid",
-                    "data_type": "string",
-                    "column_name": "Object SID",
-                    "column_order": 18
-                },
-                {
-                    "data_path": "action_result.data.*.postOfficeBox",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.postalcode",
-                    "data_type": "string",
-                    "column_name": "Zip",
-                    "column_order": 12
-                },
-                {
                     "data_path": "action_result.data.*.primarygroupid",
                     "data_type": "string",
                     "column_name": "Primary Group Id",
@@ -591,6 +566,61 @@
                     "data_type": "string",
                     "column_name": "Pwd Last Set",
                     "column_order": 15
+                },
+                {
+                    "data_path": "action_result.data.*.useraccountcontrol",
+                    "data_type": "string",
+                    "column_name": "User Account Control",
+                    "column_order": 16
+                },
+                {
+                    "data_path": "action_result.data.*.userprincipalname",
+                    "data_type": "string",
+                    "column_name": "User Principal Name",
+                    "contains": [
+                        "email"
+                    ],
+                    "column_order": 17
+                },
+                {
+                    "data_path": "action_result.data.*.objectsid",
+                    "data_type": "string",
+                    "column_name": "Object SID",
+                    "column_order": 18
+                },
+                {
+                    "data_path": "action_result.data.*.whenchanged",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.whencreated",
+                    "data_type": "string",
+                    "column_name": "When Created",
+                    "column_order": 19
+                },
+                {
+                    "data_path": "action_result.data.*.cn",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.codepage",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.dscorepropagationdata",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.givenname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.instancetype",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.samaccountname",
@@ -610,43 +640,6 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.st",
-                    "data_type": "string",
-                    "column_name": "State",
-                    "column_order": 11
-                },
-                {
-                    "data_path": "action_result.data.*.streetaddress",
-                    "data_type": "string",
-                    "column_name": "Street",
-                    "column_order": 9
-                },
-                {
-                    "data_path": "action_result.data.*.telephoneNumber",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.title",
-                    "data_type": "string",
-                    "column_name": "Title",
-                    "column_order": 8
-                },
-                {
-                    "data_path": "action_result.data.*.useraccountcontrol",
-                    "data_type": "string",
-                    "column_name": "User Account Control",
-                    "column_order": 16
-                },
-                {
-                    "data_path": "action_result.data.*.userprincipalname",
-                    "data_type": "string",
-                    "column_name": "User Principal Name",
-                    "contains": [
-                        "email"
-                    ],
-                    "column_order": 17
-                },
-                {
                     "data_path": "action_result.data.*.usnchanged",
                     "data_type": "string"
                 },
@@ -655,14 +648,28 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.whenchanged",
+                    "data_path": "action_result.data.*.telephoneNumber",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.whencreated",
-                    "data_type": "string",
-                    "column_name": "When Created",
-                    "column_order": 19
+                    "data_path": "action_result.data.*.manager",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.company",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.department",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.postOfficeBox",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.password_last_set",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.summary.bad_password_count",
@@ -673,15 +680,7 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.summary.password_last_set",
-                    "data_type": "string"
-                },
-                {
                     "data_path": "action_result.summary.state",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.message",
                     "data_type": "string"
                 },
                 {
@@ -731,51 +730,14 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.fields",
+                    "data_path": "action_result.message",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.hostname",
+                    "data_path": "action_result.data.*.name",
                     "data_type": "string",
-                    "contains": [
-                        "host name"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.accountexpires",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.badpasswordtime",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.badpwdcount",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.cn",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.codepage",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.countrycode",
-                    "data_type": "string",
-                    "column_name": "Country Code",
-                    "column_order": 6
-                },
-                {
-                    "data_path": "action_result.data.*.displayname",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.distinguishedname",
-                    "data_type": "string",
-                    "column_name": "Distinguished Name",
-                    "column_order": 2
+                    "column_name": "Name",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.dnshostname",
@@ -787,16 +749,34 @@
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.data.*.dscorepropagationdata",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.distinguishedname",
+                    "data_type": "string",
+                    "column_name": "Distinguished Name",
+                    "column_order": 2
                 },
                 {
-                    "data_path": "action_result.data.*.instancetype",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.objectcategory",
+                    "data_type": "string",
+                    "column_name": "Object Category",
+                    "column_order": 3
                 },
                 {
-                    "data_path": "action_result.data.*.iscriticalsystemobject",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.objectclass",
+                    "data_type": "string",
+                    "column_name": "Object Class",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.data.*.objectguid",
+                    "data_type": "string",
+                    "column_name": "Object Guid",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.data.*.countrycode",
+                    "data_type": "string",
+                    "column_name": "Country Code",
+                    "column_order": 6
                 },
                 {
                     "data_path": "action_result.data.*.lastlogoff",
@@ -829,40 +809,12 @@
                     "column_order": 11
                 },
                 {
-                    "data_path": "action_result.data.*.ms-ds-creatorsid",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.name",
-                    "data_type": "string",
-                    "column_name": "Name",
-                    "column_order": 0
-                },
-                {
                     "data_path": "action_result.data.*.netbootguid",
                     "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.netbootmirrordatafile",
                     "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.objectcategory",
-                    "data_type": "string",
-                    "column_name": "Object Category",
-                    "column_order": 3
-                },
-                {
-                    "data_path": "action_result.data.*.objectclass",
-                    "data_type": "string",
-                    "column_name": "Object Class",
-                    "column_order": 4
-                },
-                {
-                    "data_path": "action_result.data.*.objectguid",
-                    "data_type": "string",
-                    "column_name": "Object Guid",
-                    "column_order": 5
                 },
                 {
                     "data_path": "action_result.data.*.objectsid",
@@ -895,6 +847,14 @@
                     "column_order": 18
                 },
                 {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.cn",
+                    "data_type": "string"
+                },
+                {
                     "data_path": "action_result.data.*.pwdlastset",
                     "data_type": "string"
                 },
@@ -907,11 +867,39 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.serviceprincipalname",
+                    "data_path": "action_result.data.*.accountexpires",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.useraccountcontrol",
+                    "data_path": "action_result.data.*.badpasswordtime",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.badpwdcount",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.codepage",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.dscorepropagationdata",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.instancetype",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.iscriticalsystemobject",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.ms-ds-creatorsid",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.serviceprincipalname",
                     "data_type": "string"
                 },
                 {
@@ -920,6 +908,10 @@
                 },
                 {
                     "data_path": "action_result.data.*.usncreated",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.useraccountcontrol",
                     "data_type": "string"
                 },
                 {
@@ -935,8 +927,15 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.message",
+                    "data_path": "action_result.parameter.fields",
                     "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.hostname",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -978,10 +977,6 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.new_password",
-                    "data_type": "string"
-                },
-                {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "column_name": "Username",
@@ -989,6 +984,10 @@
                         "user name"
                     ],
                     "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.new_password",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
@@ -1110,26 +1109,16 @@
             },
             "output": [
                 {
-                    "data_path": "action_result.status",
+                    "data_path": "action_result.parameter.object_name",
                     "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.all_users",
-                    "data_type": "boolean"
                 },
                 {
                     "data_path": "action_result.parameter.object_class",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.object_name",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.displayname",
-                    "data_type": "string",
-                    "column_name": "Display Name",
-                    "column_order": 2
+                    "data_path": "action_result.parameter.all_users",
+                    "data_type": "boolean"
                 },
                 {
                     "data_path": "action_result.data.*.dn",
@@ -1151,18 +1140,28 @@
                     "column_order": 1
                 },
                 {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string",
+                    "column_name": "Display Name",
+                    "column_order": 2
+                },
+                {
                     "data_path": "action_result.data.*.samaccountname",
                     "data_type": "string",
                     "column_name": "SamAccount Name",
                     "column_order": 2
                 },
                 {
-                    "data_path": "action_result.summary.total_users",
-                    "data_type": "numeric"
+                    "data_path": "action_result.status",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.total_users",
+                    "data_type": "numeric"
                 },
                 {
                     "data_path": "summary.total_objects",

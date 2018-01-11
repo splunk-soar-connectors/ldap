@@ -318,7 +318,7 @@ class LdapConnector(BaseConnector):
         else:
             valid_keys.extend(required_keys)
 
-        bin_string_keys = ['logonhours', 'objectsid', 'objectguid', 'msexchmailboxsecuritydescriptor', 'msexchmailboxguid']
+        bin_string_keys = ['logonhours', 'objectsid', 'objectguid']
 
         try:
 
@@ -326,7 +326,7 @@ class LdapConnector(BaseConnector):
                 k = k.lower()
                 if (valid_keys and k not in valid_keys):
                     continue
-                values = [self.create_binary_string(x).strip() if (k in bin_string_keys) else x for x in v]
+                values = [self.create_binary_string(x).strip() if (k in bin_string_keys or self.is_binary_string(x)) else x for x in v]
                 if (k == 'objectsid'):
                     values = self._parse_sid_bytes(x)
                 attributes[k] = ";".join(x for x in values)

@@ -14,7 +14,7 @@
     "min_phantom_version": "3.0.247",
     "logo": "logo_microsoft.svg",
     "logo_dark": "logo_microsoft_dark.svg",
-    "license": "Copyright (c) Phantom Cyber Corporation 2015-2017",
+    "license": "Copyright (c) Phantom Cyber Corporation, 2015-2018",
     "configuration": {
         "server": {
             "data_type": "string",

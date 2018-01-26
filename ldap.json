@@ -6,7 +6,7 @@
     "type": "directory service",
     "main_module": "ldap_connector.pyc",
     "app_version": "1.2.35",
-    "utctime_updated": "2018-01-25T03:05:56.000000Z",
+    "utctime_updated": "2018-01-26T00:49:42.000000Z",
     "package_name": "phantom_ldap",
     "product_vendor": "Microsoft",
     "product_name": "Windows Server",

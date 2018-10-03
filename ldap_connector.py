@@ -85,7 +85,6 @@ class LdapConnector(BaseConnector):
         # Now search
         try:
             search_filter = unicode(search_filter, 'utf-8')
-            self.debug_print("search_filter", type(search_filter))
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR, LDAP_ERR_DN_FAILED, e, dn_type=dn_type)

@@ -1,16 +1,8 @@
-# --
 # File: ldap_connector.py
+# Copyright (c) 2014-2018 Splunk Inc.
 #
-# Copyright (c) Phantom Cyber Corporation, 2014-2018
-#
-# This unpublished material is proprietary to Phantom Cyber.
-# All rights reserved. The methods and
-# techniques described herein are considered trade secrets
-# and/or confidential. Reproduction or distribution, in whole
-# or in part, is forbidden except by express written permission
-# of Phantom Cyber.
-#
-# --
+# SPLUNK CONFIDENTIAL - Use or disclosure of this material in whole or in part
+# without a valid written license from Splunk Inc. is PROHIBITED.
 
 # Phantom imports
 import phantom.app as phantom
@@ -26,6 +18,7 @@ from datetime import datetime, timedelta
 from struct import unpack
 import codecs
 import re
+import unicodedata
 
 # The bitmask for setting the user as disabled
 ACC_DISABLED_CTRL_FLAG = 0x0002
@@ -83,13 +76,15 @@ class LdapConnector(BaseConnector):
 
     def _get_dn(self, dn_type, search_filter, action_result):
 
-        self.debug_print("search_filter", search_filter)
+        debug_search_filter = unicodedata.normalize('NFKD', unicode(search_filter, 'utf-8')).encode('ascii', 'ignore')
+        self.debug_print("search_filter", debug_search_filter)
 
         # The attribute that we are interested in
         attr_list = ['dn']
 
         # Now search
         try:
+            search_filter = unicode(search_filter, 'utf-8')
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR, LDAP_ERR_DN_FAILED, e, dn_type=dn_type)
@@ -685,7 +680,7 @@ class LdapConnector(BaseConnector):
                             values.append(self.create_binary_string(item).strip())
                 attributes[k] = ";".join(x for x in values)
         except Exception as e:
-            return action_result.set_status(phantom.APP_ERROR, "Unable to parse reply for system atrribute search", e)
+            return action_result.set_status(phantom.APP_ERROR, "Unable to parse reply for system attribute search", e)
 
         self.debug_print("Attributes", attributes)
         action_result.add_data(attributes)
@@ -1013,7 +1008,7 @@ class LdapConnector(BaseConnector):
             self.__using_ssl = False
             if (not force_ssl):
                 # Try with non ssl
-                self.save_progress(LDAP_PROG_SSL_FAILE_TRYING_NON_SSL)
+                self.save_progress(LDAP_PROG_SSL_FAILED_TRYING_NON_SSL)
                 ldap_url = 'ldap://{}'.format(ldap_server)
                 ret_val = self._connect_to_server(ldap_url, config)
             else:

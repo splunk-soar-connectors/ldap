@@ -495,7 +495,8 @@ class LdapConnector(BaseConnector):
         # First check if it is a hex string
         cont_hex_string = in_string.replace(' ', '')
 
-        self.debug_print('cont_hex_string', cont_hex_string)
+        debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
+        self.debug_print('cont_hex_string', debug_cont_hex_string)
 
         try:
             int(cont_hex_string, 16)
@@ -626,7 +627,8 @@ class LdapConnector(BaseConnector):
 
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
-        self.debug_print("machine_base_dn", machine_base_dn)
+        debug_machine_base_dn = unicodedata.normalize('NFKD', unicode(machine_base_dn, 'utf-8')).encode('ascii', 'ignore')
+        self.debug_print("machine_base_dn", debug_machine_base_dn)
 
         # The attribute list to query
         try:

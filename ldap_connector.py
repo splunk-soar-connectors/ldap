@@ -656,7 +656,7 @@ class LdapConnector(BaseConnector):
 
         user_specified_fields = param.get('fields')
 
-        required_keys = ["operatingsystem", "operatingsystemversion", "operatingsystemservicepack"]
+        required_keys = ["operatingsystem", "operatingsystemversion", "operatingsystemservicepack", "useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"]
 
         if user_specified_fields == 'all':
             valid_keys = []
@@ -686,6 +686,7 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("Attributes", attributes)
         action_result.add_data(attributes)
+        # Create the summary
         if ('operatingsystem' in attributes):
             os_string = '{0}'.format(attributes['operatingsystem'])
             if ('operatingsystemversion' in attributes):
@@ -693,6 +694,35 @@ class LdapConnector(BaseConnector):
             if ('operatingsystemservicepack' in attributes):
                 os_string += ' {0}'.format(attributes['operatingsystemservicepack'])
             action_result.update_summary({LDAP_JSON_OS: os_string})
+
+        try:
+            if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
+                action_result.update_summary({LDAP_JSON_STATE: 'Disabled'})
+            else:
+                action_result.update_summary({LDAP_JSON_STATE: 'Enabled'})
+        except:
+            action_result.update_summary({LDAP_JSON_STATE: 'Data missing'})
+
+        action_result.update_summary({LDAP_JSON_BAD_PWD_COUNT: attributes.get('badpwdcount', 'Unknown')})
+        time_int = int(attributes.get('pwdlastset', -1))
+
+        if (time_int == -1):
+            action_result.update_summary({LDAP_JSON_PWD_LAST_SET: 'Unknown'})
+        elif (time_int == 0):
+            action_result.update_summary({LDAP_JSON_PWD_LAST_SET: 'Never'})
+        else:
+            action_result.update_summary({
+                LDAP_JSON_PWD_LAST_SET: self._convert_ad_timestamp(time_int).strftime("%m/%d/%Y %I:%M:%S %p UTC")})
+
+        time_int = int(attributes.get('lastlogon', -1))
+
+        if (time_int == -1):
+            action_result.update_summary({LDAP_JSON_LAST_LOGON: 'Unknown'})
+        elif (time_int == 0):
+            action_result.update_summary({LDAP_JSON_LAST_LOGON: 'Never'})
+        else:
+            action_result.update_summary({
+                LDAP_JSON_LAST_LOGON: self._convert_ad_timestamp(time_int).strftime("%m/%d/%Y %I:%M:%S %p UTC")})
 
         action_result.set_extra_data_size(0)
         return action_result.set_status(phantom.APP_SUCCESS)

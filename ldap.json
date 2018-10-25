@@ -11,10 +11,10 @@
     "product_vendor": "Microsoft",
     "product_name": "Windows Server",
     "product_version_regex": ".*",
-    "min_phantom_version": "3.0.247",
+    "min_phantom_version": "3.5.210",
     "logo": "logo_microsoft.svg",
     "logo_dark": "logo_microsoft_dark.svg",
-    "license": "Copyright (c) 2015-2018 Splunk Inc.",
+    "license": "Copyright (c) 2014-2018 Splunk Inc.",
     "configuration": {
         "server": {
             "data_type": "string",
@@ -60,14 +60,15 @@
             "identifier": "disable_user",
             "undo": "enable user",
             "read_only": false,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
             "parameters": {
                 "username": {
                     "description": "Username to disable",
                     "data_type": "string",
                     "order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "primary": true,
                     "required": true
@@ -82,30 +83,55 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "column_name": "Username",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "test_user3"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "column_name": "Message",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "User state changed"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -117,14 +143,15 @@
             "identifier": "enable_user",
             "undo": "disable user",
             "read_only": false,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
             "parameters": {
                 "username": {
                     "description": "Username to enable",
                     "data_type": "string",
                     "order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "primary": true,
                     "required": true
@@ -139,30 +166,55 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "column_name": "Username",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "test_user3"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "column_name": "Message",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "User state changed"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -173,14 +225,15 @@
             "type": "investigate",
             "identifier": "get_user_groups",
             "read_only": true,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
             "parameters": {
                 "username": {
-                    "description": "Username (to get goups it belongs to)",
+                    "description": "Username (to get groups it belongs to)",
                     "data_type": "string",
                     "order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "primary": true,
                     "required": true
@@ -195,11 +248,11 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.message",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.username",
@@ -207,26 +260,49 @@
                     "column_name": "Username",
                     "column_order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
+                    ],
+                    "example_values": [
+                        "test_user3"
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.group",
                     "data_type": "string",
                     "column_name": "Groups",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "CN=TestUsers,DC=corp,DC=contoso,DC=com"
+                    ]
                 },
                 {
                     "data_path": "action_result.summary.total_groups",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        2
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Member of (2):\r\nCN=TestUsers,DC=corp,DC=contoso,DC=com\nCN=Remote Desktop Users,CN=Builtin,DC=corp,DC=contoso,DC=com\n"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -234,7 +310,7 @@
         {
             "action": "change system ou",
             "description": "Change the OU of a computer/system",
-            "type": "contain",
+            "type": "generic",
             "identifier": "change_system_ou",
             "read_only": false,
             "parameters": {
@@ -264,7 +340,11 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.hostname",
@@ -273,27 +353,50 @@
                         "host name"
                     ],
                     "column_name": "Host Name",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "test_user3"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.ou",
                     "data_type": "string",
                     "column_name": "Destination OU",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "Test123"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "column_name": "Message",
-                    "column_order": 2
+                    "column_order": 2,
+                    "example_values": [
+                        "OU changed successfully"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -301,7 +404,7 @@
         {
             "action": "set system attribute",
             "description": "Set the value of an attribute of a computer/system",
-            "type": "contain",
+            "type": "generic",
             "identifier": "set_system_attribute",
             "read_only": false,
             "parameters": {
@@ -341,7 +444,29 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.attribute_name",
+                    "data_type": "string",
+                    "column_name": "Attribute Name",
+                    "column_order": 1,
+                    "example_values": [
+                        "samaccountname"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.attribute_value",
+                    "data_type": "string",
+                    "column_name": "Attribute Value",
+                    "column_order": 2,
+                    "example_values": [
+                        "test_user11"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.hostname",
@@ -350,35 +475,43 @@
                         "host name"
                     ],
                     "column_name": "Host Name",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "test_user1"
+                    ]
                 },
                 {
-                    "data_path": "action_result.parameter.attribute_name",
-                    "data_type": "string",
-                    "column_name": "Attribute Name",
-                    "column_order": 1
+                    "data_path": "action_result.data",
+                    "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.attribute_value",
-                    "data_type": "string",
-                    "column_name": "Attribute Value",
-                    "column_order": 2
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "column_name": "Message",
-                    "column_order": 3
+                    "column_order": 3,
+                    "example_values": [
+                        "System attribute modified"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
                     "data_type": "numeric",
-                    "column_name": "Total Objects"
+                    "column_name": "Total Objects",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
                     "data_type": "numeric",
-                    "column_name": "Total Objects Successful"
+                    "column_name": "Total Objects Successful",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -389,14 +522,15 @@
             "type": "investigate",
             "identifier": "get_user_attributes",
             "read_only": true,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomencalture)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>In addition to the above formats and attributes that are matched against, the action also supports matching against an arbitary attribute, the name of which can be specified in the <b>attribute</b> parameter. For example to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error. Please see the ldap_app playbook in the community repo for examples.",
+            "verbose": "By default, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If, one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.<br/> The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>In addition to the above formats and attributes that are matched against, the action also supports matching against an arbitrary attribute, the name of which can be specified in the <b>attribute</b> parameter. For example to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error. Please see the ldap_app playbook in the community repo for examples.",
             "parameters": {
                 "username": {
                     "description": "Username or Attribute value to match",
                     "data_type": "string",
                     "order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "primary": true,
                     "required": true
@@ -424,68 +558,171 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
-                    "data_path": "action_result.message",
-                    "data_type": "string"
+                    "data_path": "action_result.parameter.attribute",
+                    "data_type": "string",
+                    "example_values": [
+                        "Displayname"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.fields",
+                    "data_type": "string",
+                    "example_values": [
+                        "samaccountName"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
+                    ],
+                    "example_values": [
+                        "The Administrator",
+                        "test_user3"
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.fields",
+                    "data_path": "action_result.data.*.accountexpires",
+                    "data_type": "string",
+                    "example_values": [
+                        "9223370036854775807"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.badpasswordtime",
+                    "data_type": "string",
+                    "example_values": [
+                        "131847005589525500"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.badpwdcount",
+                    "data_type": "string",
+                    "column_name": "Bad Pwd Count",
+                    "column_order": 6,
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cn",
+                    "data_type": "string",
+                    "example_values": [
+                        "Test User3"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.co",
+                    "data_type": "string",
+                    "column_name": "Country",
+                    "column_order": 13
+                },
+                {
+                    "data_path": "action_result.data.*.codepage",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.company",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.attribute",
+                    "data_path": "action_result.data.*.countrycode",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.department",
                     "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.displayname",
                     "data_type": "string",
                     "column_name": "Display Name",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "Test User3"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.distinguishedname",
                     "data_type": "string",
+                    "contains": [
+                        "ldap distinguished name"
+                    ],
                     "column_name": "Distinguished Name",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "CN=Test User3,CN=Users,DC=corp,DC=contoso,DC=com"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.lastlogon",
+                    "data_path": "action_result.data.*.dscorepropagationdata",
                     "data_type": "string",
-                    "column_name": "Last Logon",
-                    "column_order": 2
+                    "example_values": [
+                        "20181003111127.0Z;20170110001231.0Z;16010001000416.0Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.givenname",
+                    "data_type": "string",
+                    "example_values": [
+                        "Test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.instancetype",
+                    "data_type": "string",
+                    "example_values": [
+                        "4"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.l",
+                    "data_type": "string",
+                    "column_name": "City",
+                    "column_order": 10
                 },
                 {
                     "data_path": "action_result.data.*.lastlogoff",
                     "data_type": "string",
                     "column_name": "Last Logoff",
-                    "column_order": 3
+                    "column_order": 3,
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.lastlogon",
+                    "data_type": "string",
+                    "column_name": "Last Logon",
+                    "column_order": 2,
+                    "example_values": [
+                        "131847000011239275",
+                        "131847680040779871"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.logoncount",
                     "data_type": "string",
                     "column_name": "Logon Count",
-                    "column_order": 4
-                },
-                {
-                    "data_path": "action_result.data.*.memberof",
-                    "data_type": "string",
-                    "column_name": "Member Of",
-                    "column_order": 5
-                },
-                {
-                    "data_path": "action_result.data.*.badpwdcount",
-                    "data_type": "string",
-                    "column_name": "Bad Pwd Count",
-                    "column_order": 6
+                    "column_order": 4,
+                    "example_values": [
+                        "0"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.mail",
@@ -497,28 +734,58 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.title",
-                    "data_type": "string",
-                    "column_name": "Title",
-                    "column_order": 8
+                    "data_path": "action_result.data.*.manager",
+                    "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.streetaddress",
+                    "data_path": "action_result.data.*.memberof",
                     "data_type": "string",
-                    "column_name": "Street",
-                    "column_order": 9
+                    "column_name": "Member Of",
+                    "column_order": 5,
+                    "example_values": [
+                        "CN=TestUsers,DC=corp,DC=contoso,DC=com;CN=Remote Desktop Users,CN=Builtin,DC=corp,DC=contoso,DC=com"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.l",
+                    "data_path": "action_result.data.*.name",
                     "data_type": "string",
-                    "column_name": "City",
-                    "column_order": 10
+                    "example_values": [
+                        "Test User3"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.st",
+                    "data_path": "action_result.data.*.objectcategory",
                     "data_type": "string",
-                    "column_name": "State",
-                    "column_order": 11
+                    "example_values": [
+                        "CN=Person,CN=Schema,CN=Configuration,DC=corp,DC=contoso,DC=com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.objectclass",
+                    "data_type": "string",
+                    "example_values": [
+                        "top;person;organizationalPerson;user"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.objectguid",
+                    "data_type": "string",
+                    "example_values": [
+                        "13 ab 7f de 08 b5 32 44 9d e9 07 65 52 5a e4 49"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.objectsid",
+                    "data_type": "string",
+                    "column_name": "Object SID",
+                    "column_order": 18,
+                    "example_values": [
+                        "S-1-5-00-3790544232-372029393-2474287633-1114"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.postOfficeBox",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.postalcode",
@@ -527,101 +794,23 @@
                     "column_order": 12
                 },
                 {
-                    "data_path": "action_result.data.*.co",
-                    "data_type": "string",
-                    "column_name": "Country",
-                    "column_order": 13
-                },
-                {
-                    "data_path": "action_result.data.*.accountexpires",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.badpasswordtime",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.countrycode",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.objectcategory",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.objectclass",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.objectguid",
-                    "data_type": "string"
-                },
-                {
                     "data_path": "action_result.data.*.primarygroupid",
                     "data_type": "string",
                     "column_name": "Primary Group Id",
-                    "column_order": 14
+                    "column_order": 14,
+                    "example_values": [
+                        "513"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.pwdlastset",
                     "data_type": "string",
                     "column_name": "Pwd Last Set",
-                    "column_order": 15
-                },
-                {
-                    "data_path": "action_result.data.*.useraccountcontrol",
-                    "data_type": "string",
-                    "column_name": "User Account Control",
-                    "column_order": 16
-                },
-                {
-                    "data_path": "action_result.data.*.userprincipalname",
-                    "data_type": "string",
-                    "column_name": "User Principal Name",
-                    "contains": [
-                        "email"
-                    ],
-                    "column_order": 17
-                },
-                {
-                    "data_path": "action_result.data.*.objectsid",
-                    "data_type": "string",
-                    "column_name": "Object SID",
-                    "column_order": 18
-                },
-                {
-                    "data_path": "action_result.data.*.whenchanged",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.whencreated",
-                    "data_type": "string",
-                    "column_name": "When Created",
-                    "column_order": 19
-                },
-                {
-                    "data_path": "action_result.data.*.cn",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.codepage",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.dscorepropagationdata",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.givenname",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.instancetype",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.name",
-                    "data_type": "string"
+                    "column_order": 15,
+                    "example_values": [
+                        "131800831957980568",
+                        "131800682325338799"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.samaccountname",
@@ -630,67 +819,150 @@
                     "contains": [
                         "user name"
                     ],
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "Administrator",
+                        "test_user3"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.samaccounttype",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "805006368"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.sn",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "User3"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.usnchanged",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.st",
+                    "data_type": "string",
+                    "column_name": "State",
+                    "column_order": 11
                 },
                 {
-                    "data_path": "action_result.data.*.usncreated",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.streetaddress",
+                    "data_type": "string",
+                    "column_name": "Street",
+                    "column_order": 9
                 },
                 {
                     "data_path": "action_result.data.*.telephoneNumber",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.manager",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.title",
+                    "data_type": "string",
+                    "column_name": "Title",
+                    "column_order": 8
                 },
                 {
-                    "data_path": "action_result.data.*.company",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.useraccountcontrol",
+                    "data_type": "string",
+                    "column_name": "User Account Control",
+                    "column_order": 16,
+                    "example_values": [
+                        "60000",
+                        "66001"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.department",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.userprincipalname",
+                    "data_type": "string",
+                    "column_name": "User Principal Name",
+                    "contains": [
+                        "email"
+                    ],
+                    "column_order": 17,
+                    "example_values": [
+                        "test_user3@corp.contoso.com"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.postOfficeBox",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.usnchanged",
+                    "data_type": "string",
+                    "example_values": [
+                        "1600815"
+                    ]
                 },
                 {
-                    "data_path": "action_result.summary.password_last_set",
-                    "data_type": "string"
+                    "data_path": "action_result.data.*.usncreated",
+                    "data_type": "string",
+                    "example_values": [
+                        "16003"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.whenchanged",
+                    "data_type": "string",
+                    "example_values": [
+                        "20180123123940.0Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.whencreated",
+                    "data_type": "string",
+                    "column_name": "When Created",
+                    "column_order": 19,
+                    "example_values": [
+                        "20141001130729.0Z"
+                    ]
                 },
                 {
                     "data_path": "action_result.summary.bad_password_count",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
                 },
                 {
                     "data_path": "action_result.summary.last_logon",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "10/01/2018 07:51:41 AM UTC"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.password_last_set",
+                    "data_type": "string",
+                    "example_values": [
+                        "10/01/2018 11:59:55 AM UTC"
+                    ]
                 },
                 {
                     "data_path": "action_result.summary.state",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "Disabled",
+                        "Enabled"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "State: Disabled, Bad password count: 0, Last logon: 10/23/2018 07:51:41 AM UTC, Password last set: 10/22/2018 11:59:55 AM UTC",
+                        "State: Enabled, Bad password count: 0, Last logon: 10/23/2018 11:43:04 AM UTC, Password last set: 10/23/2018 11:37:12 AM UTC"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -698,6 +970,7 @@
         {
             "action": "get system attributes",
             "description": "Gets the attributes of a computer/system",
+            "verbose": "By default, operatingsystem, operatingsystemversion, operatingsystemservicepack, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If, one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.",
             "type": "investigate",
             "identifier": "get_system_attributes",
             "read_only": true,
@@ -728,17 +1001,89 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.message",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.name",
                     "data_type": "string",
-                    "column_name": "Name",
-                    "column_order": 0
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.fields",
+                    "data_type": "string",
+                    "example_values": [
+                        "samaccountname,displayname",
+                        "all"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.hostname",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ],
+                    "example_values": [
+                        "test_hostname1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.accountexpires",
+                    "data_type": "string",
+                    "example_values": [
+                        "9223370036854775807"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.badpasswordtime",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.badpwdcount",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.cn",
+                    "data_type": "string",
+                    "example_values": [
+                        "test_hostname"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.codepage",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.countrycode",
+                    "data_type": "string",
+                    "column_name": "Country Code",
+                    "column_order": 6,
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.distinguishedname",
+                    "data_type": "string",
+                    "contains": [
+                        "ldap distinguished name"
+                    ],
+                    "column_name": "Distinguished Name",
+                    "column_order": 2,
+                    "example_values": [
+                        "CN=testhostname,OU=Test123,OU=ShawOU,DC=corp,DC=contoso,DC=com"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.dnshostname",
@@ -750,46 +1095,43 @@
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.data.*.distinguishedname",
+                    "data_path": "action_result.data.*.dscorepropagationdata",
                     "data_type": "string",
-                    "column_name": "Distinguished Name",
-                    "column_order": 2
+                    "example_values": [
+                        "20181000074916.0Z;16010100000000.0Z"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.objectcategory",
+                    "data_path": "action_result.data.*.instancetype",
                     "data_type": "string",
-                    "column_name": "Object Category",
-                    "column_order": 3
+                    "example_values": [
+                        "4"
+                    ]
                 },
                 {
-                    "data_path": "action_result.data.*.objectclass",
+                    "data_path": "action_result.data.*.iscriticalsystemobject",
                     "data_type": "string",
-                    "column_name": "Object Class",
-                    "column_order": 4
-                },
-                {
-                    "data_path": "action_result.data.*.objectguid",
-                    "data_type": "string",
-                    "column_name": "Object Guid",
-                    "column_order": 5
-                },
-                {
-                    "data_path": "action_result.data.*.countrycode",
-                    "data_type": "string",
-                    "column_name": "Country Code",
-                    "column_order": 6
+                    "example_values": [
+                        "FALSE"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.lastlogoff",
                     "data_type": "string",
                     "column_name": "Last Logoff",
-                    "column_order": 7
+                    "column_order": 7,
+                    "example_values": [
+                        "0"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.lastlogon",
                     "data_type": "string",
                     "column_name": "Last Logon",
-                    "column_order": 8
+                    "column_order": 8,
+                    "example_values": [
+                        "0"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.lastlogontimestamp",
@@ -801,13 +1143,35 @@
                     "data_path": "action_result.data.*.localpolicyflags",
                     "data_type": "string",
                     "column_name": "Local Policy Flags",
-                    "column_order": 10
+                    "column_order": 10,
+                    "example_values": [
+                        "0"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.logoncount",
                     "data_type": "string",
                     "column_name": "Logon Count",
-                    "column_order": 11
+                    "column_order": 11,
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.ms-ds-creatorsid",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.name",
+                    "data_type": "string",
+                    "contains": [
+                        "host name"
+                    ],
+                    "column_name": "Host Name",
+                    "column_order": 0,
+                    "example_values": [
+                        "test_hostname"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.netbootguid",
@@ -818,10 +1182,40 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.data.*.objectcategory",
+                    "data_type": "string",
+                    "column_name": "Object Category",
+                    "column_order": 3,
+                    "example_values": [
+                        "CN=Computer,CN=Schema,CN=Configuration,DC=corp,DC=contoso,DC=com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.objectclass",
+                    "data_type": "string",
+                    "column_name": "Object Class",
+                    "column_order": 4,
+                    "example_values": [
+                        "top;person;organizationalPerson;user;computer"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.objectguid",
+                    "data_type": "string",
+                    "column_name": "Object Guid",
+                    "column_order": 5,
+                    "example_values": [
+                        "76 40 ab 86 69 e7 d9 48 95 67 3f 3b a5 1c 73 6b"
+                    ]
+                },
+                {
                     "data_path": "action_result.data.*.objectsid",
                     "data_type": "string",
                     "column_name": "Object SID",
-                    "column_order": 14
+                    "column_order": 14,
+                    "example_values": [
+                        "01 00 00 00 00 00 00 05 15 00 00 00 68 1d ef e1 d1 b7 2c 16 11 a2 7a 93 84 2f 00 00"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.operatingsystem",
@@ -845,97 +1239,122 @@
                     "data_path": "action_result.data.*.primarygroupid",
                     "data_type": "string",
                     "column_name": "Primary Group ID",
-                    "column_order": 18
-                },
-                {
-                    "data_path": "action_result.data.*.displayname",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.cn",
-                    "data_type": "string"
+                    "column_order": 18,
+                    "example_values": [
+                        "515"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.pwdlastset",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "131846800401723900"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.samaccountname",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "test_hostname1"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.samaccounttype",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.accountexpires",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.badpasswordtime",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.badpwdcount",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.codepage",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.dscorepropagationdata",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.instancetype",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.iscriticalsystemobject",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.ms-ds-creatorsid",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "805006369"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.serviceprincipalname",
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.data.*.useraccountcontrol",
+                    "data_type": "string",
+                    "example_values": [
+                        "4100"
+                    ]
+                },
+                {
                     "data_path": "action_result.data.*.usnchanged",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "1691800"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.usncreated",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.useraccountcontrol",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "1689700"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.whenchanged",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "20181023125053.0Z"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.whencreated",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "20181022122540.0Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.bad_password_count",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.last_logon",
+                    "data_type": "string",
+                    "example_values": [
+                        "Never"
+                    ]
                 },
                 {
                     "data_path": "action_result.summary.os",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.fields",
-                    "data_type": "string"
+                    "data_path": "action_result.summary.password_last_set",
+                    "data_type": "string",
+                    "example_values": [
+                        "10/01/2018 12:25:40 PM UTC"
+                    ]
                 },
                 {
-                    "data_path": "action_result.parameter.hostname",
+                    "data_path": "action_result.summary.state",
                     "data_type": "string",
-                    "contains": [
-                        "host name"
+                    "example_values": [
+                        "Enabled"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "State: Enabled, Bad password count: 0, Last logon: Never, Password last set: 10/22/2018 12:25:40 PM UTC"
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
                     ]
                 }
             ],
@@ -954,7 +1373,8 @@
                     "data_type": "string",
                     "order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "primary": true,
                     "required": true
@@ -975,34 +1395,62 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.new_password",
+                    "data_type": "string",
+                    "example_values": [
+                        "abc@123"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "column_name": "Username",
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "test_user3"
+                    ]
                 },
                 {
-                    "data_path": "action_result.parameter.new_password",
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
                     "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "column_name": "Message",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "User password changed"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -1020,7 +1468,8 @@
                     "data_type": "string",
                     "order": 0,
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
                     "primary": true,
                     "required": true
@@ -1035,30 +1484,55 @@
             "output": [
                 {
                     "data_path": "action_result.status",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.username",
                     "data_type": "string",
                     "column_name": "Username",
                     "contains": [
-                        "user name"
+                        "user name",
+                        "ldap distinguished name"
                     ],
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "test_user4"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string",
                     "column_name": "Message",
-                    "column_order": 1
+                    "column_order": 1,
+                    "example_values": [
+                        "User 'change password at next logon' enforced"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"
@@ -1066,7 +1540,7 @@
         {
             "action": "get users",
             "description": "Get the list of users",
-            "verbose": "Use this action to get a list of users. Only users that have email addresses will be returned. If the <b>all_users</b> parameter is set to <b>True</b>, the action will list all users in the enterprise and ignore the <b>object_name</b> and <b>object_class</b> parameters. To list users that belong to a specific <i>group</i>, <i>organizationalUnit</i> or <i>container</i> (known as objects), set the <b>all_users</b> parameter to <b>False</b> and the <b>object_name</b> and <b>object_class</b> (both required in this case) parameters to the required values.<br>A list of object classes is supplied, one of which the user may choose as the value for the <b>object_class</b> parameter, these are:<br><ul><li>container</li><li>organizationalUnit</li><li>group</li></ul>When executing the action from a playbook, the author can look up arbitary object classes by supplying the desired class as a string for the <b>object_class</b> parameter.<br>The action will first query the system for the <i>dn</i> of the object (using the name and class). The action will fail if an object with the specified <b>object_name</b> belonging to the specified <b>object_class</b> is not found. If the <b>object_class</b> equals \"group\" then the returned group will be used to populate a query filter that returns all users with a <i>memberOf</i> attribute equal to the full <i>dn</i> of the group with that name. If the <b>object_class</b> is any string other than \"group\" (such as \"container\" or \"organizationalUnit\") then the <i>dn</i> returned from the first query will be used as the <i>base_dn</i> of the User query.<br>Some examples:<br><ul><li>To find all users in an Organizational Unit(OU) named <i>UsersOU</i><br><b>all_users</b>: False<br><b>object_name</b>: UsersOu<br><b>object_class</b>: organizationalUnit<br></li><li>To find all users in a Container named <i>Users</i> (Default container found in most AD installations)<br><b>all_users</b>: False<br><b>object_name</b>: Users<br><b>object_class</b>: container<br></li><li>To find all users in the group named <i>Enterprise Admins</i> (one of the most powerful default AD groups)<br><b>all_users</b>: False<br><b>object_name</b>: Enterprise Admins<br><b>object_class</b>: group<br></li><li>To find all users in the complete enterprise<br><b>all_users</b>: True<br></li></ul>",
+            "verbose": "Use this action to get a list of users. Only users that have email addresses will be returned. If the <b>all_users</b> parameter is set to <b>True</b>, the action will list all users in the enterprise and ignore the <b>object_name</b> and <b>object_class</b> parameters. To list users that belong to a specific <i>group</i>, <i>organizationalUnit</i> or <i>container</i> (known as objects), set the <b>all_users</b> parameter to <b>False</b> and the <b>object_name</b> and <b>object_class</b> (both required in this case) parameters to the required values.<br>A list of object classes is supplied, one of which the user may choose as the value for the <b>object_class</b> parameter, these are:<br><ul><li>container</li><li>organizationalUnit</li><li>group</li></ul>When executing the action from a playbook, the author can look up arbitrary object classes by supplying the desired class as a string for the <b>object_class</b> parameter.<br>The action will first query the system for the <i>dn</i> of the object (using the name and class). The action will fail if an object with the specified <b>object_name</b> belonging to the specified <b>object_class</b> is not found. If the <b>object_class</b> equals \"group\" then the returned group will be used to populate a query filter that returns all users with a <i>memberOf</i> attribute equal to the full <i>dn</i> of the group with that name. If the <b>object_class</b> is any string other than \"group\" (such as \"container\" or \"organizationalUnit\") then the <i>dn</i> returned from the first query will be used as the <i>base_dn</i> of the User query.<br>Some examples:<br><ul><li>To find all users in an Organizational Unit(OU) named <i>UsersOU</i><br><b>all_users</b>: False<br><b>object_name</b>: UsersOu<br><b>object_class</b>: organizationalUnit<br></li><li>To find all users in a Container named <i>Users</i> (Default container found in most AD installations)<br><b>all_users</b>: False<br><b>object_name</b>: Users<br><b>object_class</b>: container<br></li><li>To find all users in the group named <i>Enterprise Admins</i> (one of the most powerful default AD groups)<br><b>all_users</b>: False<br><b>object_name</b>: Enterprise Admins<br><b>object_class</b>: group<br></li><li>To find all users in the complete enterprise<br><b>all_users</b>: True<br></li></ul>",
             "type": "investigate",
             "identifier": "get_users",
             "read_only": true,
@@ -1110,26 +1584,62 @@
             },
             "output": [
                 {
-                    "data_path": "action_result.parameter.object_name",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.object_class",
-                    "data_type": "string"
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.all_users",
-                    "data_type": "boolean"
+                    "data_type": "boolean",
+                    "example_values": [
+                        false,
+                        true
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.object_class",
+                    "data_type": "string",
+                    "example_values": [
+                        "container"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.object_name",
+                    "data_type": "string",
+                    "example_values": [
+                        "Users"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.displayname",
+                    "data_type": "string",
+                    "column_name": "Display Name",
+                    "column_order": 2,
+                    "example_values": [
+                        "The Administrator"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.dn",
                     "data_type": "string",
                     "column_name": "User DN",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "CN=Administrator,CN=Users,DC=corp,DC=contoso,DC=com"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.emails",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "test@corp.contoso.com"
+                    ],
+                    "contains": [
+                        "email"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.emails.0",
@@ -1141,36 +1651,41 @@
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.data.*.displayname",
-                    "data_type": "string",
-                    "column_name": "Display Name",
-                    "column_order": 2
-                },
-                {
                     "data_path": "action_result.data.*.samaccountname",
                     "data_type": "string",
                     "column_name": "SamAccount Name",
-                    "column_order": 2
-                },
-                {
-                    "data_path": "action_result.status",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.message",
-                    "data_type": "string"
+                    "column_order": 2,
+                    "example_values": [
+                        "Administrator"
+                    ]
                 },
                 {
                     "data_path": "action_result.summary.total_users",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        34
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Total users: 34"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "versions": "EQ(*)"

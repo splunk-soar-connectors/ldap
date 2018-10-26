@@ -60,7 +60,7 @@
             "identifier": "disable_user",
             "undo": "enable user",
             "read_only": false,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul>",
             "parameters": {
                 "username": {
                     "description": "Username to disable",
@@ -143,7 +143,7 @@
             "identifier": "enable_user",
             "undo": "disable user",
             "read_only": false,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul>",
             "parameters": {
                 "username": {
                     "description": "Username to enable",
@@ -225,7 +225,7 @@
             "type": "investigate",
             "identifier": "get_user_groups",
             "read_only": true,
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul>",
             "parameters": {
                 "username": {
                     "description": "Username (to get groups it belongs to)",
@@ -522,7 +522,7 @@
             "type": "investigate",
             "identifier": "get_user_attributes",
             "read_only": true,
-            "verbose": "By default, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If, one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.<br/> The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format for example test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address for example test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format for example CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name for example Corp\\test_user</li> </ul>In addition to the above formats and attributes that are matched against, the action also supports matching against an arbitrary attribute, the name of which can be specified in the <b>attribute</b> parameter. For example to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error. Please see the ldap_app playbook in the community repo for examples.",
+            "verbose": "By default, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.<br/> The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul>In addition to the above formats and attributes that are matched against, the action also supports matching against an arbitrary attribute, the name of which can be specified in the <b>attribute</b> parameter. For example, to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error. Please see the ldap_app playbook in the community repo for examples.",
             "parameters": {
                 "username": {
                     "description": "Username or Attribute value to match",
@@ -970,7 +970,7 @@
         {
             "action": "get system attributes",
             "description": "Gets the attributes of a computer/system",
-            "verbose": "By default, operatingsystem, operatingsystemversion, operatingsystemservicepack, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If, one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.",
+            "verbose": "By default, operatingsystem, operatingsystemversion, operatingsystemservicepack, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.",
             "type": "investigate",
             "identifier": "get_system_attributes",
             "read_only": true,

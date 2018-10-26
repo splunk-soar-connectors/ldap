@@ -1627,6 +1627,9 @@
                     "data_type": "string",
                     "column_name": "User DN",
                     "column_order": 0,
+                    "contains": [
+                        "ldap distinguished name"
+                    ],
                     "example_values": [
                         "CN=Administrator,CN=Users,DC=corp,DC=contoso,DC=com"
                     ]

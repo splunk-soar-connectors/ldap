@@ -1,5 +1,5 @@
 {
-    "appid": "84110F27-6602-4DC8-A6F2-0311B1720BF8",
+    "appid": "84110f27-6602-4dc8-a6f2-0311b1720bf8",
     "name": "LDAP",
     "description": "This app implements various actions that can be carried out on an AD server",
     "publisher": "Phantom",
@@ -45,7 +45,7 @@
     "actions": [
         {
             "action": "test connectivity",
-            "description": "Validate the asset configuration for connectivity. This action logs into the device to check the connection and credentials.",
+            "description": "Validate the asset configuration for connectivity. This action logs into the device to check the connection and credentials",
             "type": "test",
             "identifier": "test_asset_connectivity",
             "read_only": true,

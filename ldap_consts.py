@@ -1,16 +1,8 @@
-# --
 # File: ldap_consts.py
+# Copyright (c) 2014-2018 Splunk Inc.
 #
-# Copyright (c) Phantom Cyber Corporation, 2014-2018
-#
-# This unpublished material is proprietary to Phantom Cyber.
-# All rights reserved. The methods and
-# techniques described herein are considered trade secrets
-# and/or confidential. Reproduction or distribution, in whole
-# or in part, is forbidden except by express written permission
-# of Phantom Cyber.
-#
-# --
+# SPLUNK CONFIDENTIAL - Use or disclosure of this material in whole or in part
+# without a valid written license from Splunk Inc. is PROHIBITED.
 
 # Json keys
 LDAP_JSON_GROUP = "group"
@@ -82,6 +74,6 @@ LDAP_PROG_ENABLING_USER = "Enabling user"
 LDAP_PROG_USER_STATUS_SAME_AS_REQUIRED = "User state same as required"
 LDAP_PROG_PASSWORD_CHANGE_STATUS_SAME_AS_REQUIRED = "User 'change password at next logon' state same as required"
 LDAP_PROG_GOT_DN = "Got {dn_type} DN: {dn}"
-LDAP_PROG_SSL_FAILE_TRYING_NON_SSL = "SSL connection failed, trying non-ssl"
+LDAP_PROG_SSL_FAILED_TRYING_NON_SSL = "SSL connection failed, trying non-ssl"
 
 LDAP_MSG_NON_SSL_NOT_ALLOWED = "Configuration does not allow to try non-ssl connection"

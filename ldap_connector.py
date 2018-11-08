@@ -1,16 +1,8 @@
-# --
 # File: ldap_connector.py
+# Copyright (c) 2014-2018 Splunk Inc.
 #
-# Copyright (c) Phantom Cyber Corporation, 2014-2018
-#
-# This unpublished material is proprietary to Phantom Cyber.
-# All rights reserved. The methods and
-# techniques described herein are considered trade secrets
-# and/or confidential. Reproduction or distribution, in whole
-# or in part, is forbidden except by express written permission
-# of Phantom Cyber.
-#
-# --
+# SPLUNK CONFIDENTIAL - Use or disclosure of this material in whole or in part
+# without a valid written license from Splunk Inc. is PROHIBITED.
 
 # Phantom imports
 import phantom.app as phantom
@@ -26,6 +18,7 @@ from datetime import datetime, timedelta
 from struct import unpack
 import codecs
 import re
+import unicodedata
 
 # The bitmask for setting the user as disabled
 ACC_DISABLED_CTRL_FLAG = 0x0002
@@ -83,13 +76,15 @@ class LdapConnector(BaseConnector):
 
     def _get_dn(self, dn_type, search_filter, action_result):
 
-        self.debug_print("search_filter", search_filter)
+        debug_search_filter = unicodedata.normalize('NFKD', unicode(search_filter, 'utf-8')).encode('ascii', 'ignore')
+        self.debug_print("search_filter", debug_search_filter)
 
         # The attribute that we are interested in
         attr_list = ['dn']
 
         # Now search
         try:
+            search_filter = unicode(search_filter, 'utf-8')
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR, LDAP_ERR_DN_FAILED, e, dn_type=dn_type)
@@ -326,7 +321,7 @@ class LdapConnector(BaseConnector):
                 k = k.lower()
                 if (valid_keys and k not in valid_keys):
                     continue
-                values = [self.create_binary_string(x).strip() if (k in bin_string_keys) else x for x in v]
+                values = [self.create_binary_string(x).strip() if (k in bin_string_keys or self.is_binary_string(x)) else x for x in v]
                 if (k == 'objectsid'):
                     values = self._parse_sid_bytes(x)
                 attributes[k] = ";".join(x for x in values)
@@ -500,7 +495,8 @@ class LdapConnector(BaseConnector):
         # First check if it is a hex string
         cont_hex_string = in_string.replace(' ', '')
 
-        self.debug_print('cont_hex_string', cont_hex_string)
+        debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
+        self.debug_print('cont_hex_string', debug_cont_hex_string)
 
         try:
             int(cont_hex_string, 16)
@@ -631,7 +627,8 @@ class LdapConnector(BaseConnector):
 
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
-        self.debug_print("machine_base_dn", machine_base_dn)
+        debug_machine_base_dn = unicodedata.normalize('NFKD', unicode(machine_base_dn, 'utf-8')).encode('ascii', 'ignore')
+        self.debug_print("machine_base_dn", debug_machine_base_dn)
 
         # The attribute list to query
         try:
@@ -659,7 +656,7 @@ class LdapConnector(BaseConnector):
 
         user_specified_fields = param.get('fields')
 
-        required_keys = ["operatingsystem", "operatingsystemversion", "operatingsystemservicepack"]
+        required_keys = ["operatingsystem", "operatingsystemversion", "operatingsystemservicepack", "useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"]
 
         if user_specified_fields == 'all':
             valid_keys = []
@@ -685,10 +682,11 @@ class LdapConnector(BaseConnector):
                             values.append(self.create_binary_string(item).strip())
                 attributes[k] = ";".join(x for x in values)
         except Exception as e:
-            return action_result.set_status(phantom.APP_ERROR, "Unable to parse reply for system atrribute search", e)
+            return action_result.set_status(phantom.APP_ERROR, "Unable to parse reply for system attribute search", e)
 
         self.debug_print("Attributes", attributes)
         action_result.add_data(attributes)
+        # Create the summary
         if ('operatingsystem' in attributes):
             os_string = '{0}'.format(attributes['operatingsystem'])
             if ('operatingsystemversion' in attributes):
@@ -696,6 +694,35 @@ class LdapConnector(BaseConnector):
             if ('operatingsystemservicepack' in attributes):
                 os_string += ' {0}'.format(attributes['operatingsystemservicepack'])
             action_result.update_summary({LDAP_JSON_OS: os_string})
+
+        try:
+            if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
+                action_result.update_summary({LDAP_JSON_STATE: 'Disabled'})
+            else:
+                action_result.update_summary({LDAP_JSON_STATE: 'Enabled'})
+        except:
+            action_result.update_summary({LDAP_JSON_STATE: 'Data missing'})
+
+        action_result.update_summary({LDAP_JSON_BAD_PWD_COUNT: attributes.get('badpwdcount', 'Unknown')})
+        time_int = int(attributes.get('pwdlastset', -1))
+
+        if (time_int == -1):
+            action_result.update_summary({LDAP_JSON_PWD_LAST_SET: 'Unknown'})
+        elif (time_int == 0):
+            action_result.update_summary({LDAP_JSON_PWD_LAST_SET: 'Never'})
+        else:
+            action_result.update_summary({
+                LDAP_JSON_PWD_LAST_SET: self._convert_ad_timestamp(time_int).strftime("%m/%d/%Y %I:%M:%S %p UTC")})
+
+        time_int = int(attributes.get('lastlogon', -1))
+
+        if (time_int == -1):
+            action_result.update_summary({LDAP_JSON_LAST_LOGON: 'Unknown'})
+        elif (time_int == 0):
+            action_result.update_summary({LDAP_JSON_LAST_LOGON: 'Never'})
+        else:
+            action_result.update_summary({
+                LDAP_JSON_LAST_LOGON: self._convert_ad_timestamp(time_int).strftime("%m/%d/%Y %I:%M:%S %p UTC")})
 
         action_result.set_extra_data_size(0)
         return action_result.set_status(phantom.APP_SUCCESS)
@@ -1013,7 +1040,7 @@ class LdapConnector(BaseConnector):
             self.__using_ssl = False
             if (not force_ssl):
                 # Try with non ssl
-                self.save_progress(LDAP_PROG_SSL_FAILE_TRYING_NON_SSL)
+                self.save_progress(LDAP_PROG_SSL_FAILED_TRYING_NON_SSL)
                 ldap_url = 'ldap://{}'.format(ldap_server)
                 ret_val = self._connect_to_server(ldap_url, config)
             else:
@@ -1170,6 +1197,7 @@ class LdapConnector(BaseConnector):
             # Unbind
             self.__ldap_conn.unbind_s()
             self.__ldap_conn = None
+
 
 if __name__ == '__main__':
 

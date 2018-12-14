@@ -273,8 +273,9 @@ class LdapConnector(BaseConnector):
             return action_result.get_status()
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
+        self.debug_print("Working on User: ", username.decode('utf-8') + "@" + user_base_dn.decode('utf-8'))
 
-        self.debug_print("Working on User: ", username + "@" + user_base_dn)
+        user_base_dn = u''.join(user_base_dn.decode('utf-8'))
 
         # The attribute list to query
         try:

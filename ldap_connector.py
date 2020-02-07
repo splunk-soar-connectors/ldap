@@ -19,6 +19,7 @@ from struct import unpack
 import codecs
 import re
 import unicodedata
+from bs4 import UnicodeDammit
 
 # The bitmask for setting the user as disabled
 ACC_DISABLED_CTRL_FLAG = 0x0002
@@ -265,7 +266,6 @@ class LdapConnector(BaseConnector):
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         username = param.get(phantom.APP_JSON_USERNAME)
-
         user_base_dn = None
         # Query the server for user_base_dn
         user_base_dn = self._get_user_dn(username, param, action_result)
@@ -273,10 +273,9 @@ class LdapConnector(BaseConnector):
             return action_result.get_status()
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
-        self.debug_print("Working on User: ", username.decode('utf-8') + "@" + user_base_dn.decode('utf-8'))
+        self.debug_print("Working on User:{0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')))
 
         user_base_dn = u''.join(user_base_dn.decode('utf-8'))
-
         # The attribute list to query
         try:
             r_data = self.__ldap_conn.search_s(user_base_dn, ldap.SCOPE_BASE, "cn=*")  # pylint: disable=E1101
@@ -366,7 +365,8 @@ class LdapConnector(BaseConnector):
 
     def _get_object_base_dn(self, obj_name, obj_class, action_result):
 
-        search_filter = '(&(objectClass={0})(name={1}))'.format(obj_class, obj_name)
+        search_filter = '(&(objectClass={0})(name={1}))'.format(obj_class, UnicodeDammit(obj_name).unicode_markup.encode('utf-8'))
+        # search_filter = '(&(objectClass={0}))'.format(obj_class)
 
         # print "Search Filter: " + search_filter
 
@@ -378,7 +378,7 @@ class LdapConnector(BaseConnector):
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Failed to get Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class), e)
+                    "Failed to get Base DN for {0} of class: {1}. Can't proceed".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class), e)
             return (phantom.APP_ERROR, None)
 
         action_result.add_debug_data(r_data)
@@ -386,21 +386,21 @@ class LdapConnector(BaseConnector):
         # Parse the result
         if not r_data:
             action_result.set_status(phantom.APP_ERROR,
-                    "Got empty result while querying the Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class))
+                    "Got empty result while querying the Base DN for {0} of class: {1}. Can't proceed".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class))
             return (phantom.APP_ERROR, None)
 
         try:
             self.debug_print("r_data", r_data)
             users_base_dn = r_data[0][0]
-            self.debug_print("users_base_dn", users_base_dn)
             if (users_base_dn is None):
-                action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'".format(obj_name, obj_class))
+                action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class))
                 return (phantom.APP_ERROR, None)
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class), e)
+                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class), e)
             return (phantom.APP_ERROR, None)
 
+        self.debug_print("list_users-9")
         return (phantom.APP_SUCCESS, users_base_dn)
 
     def _get_groups_of_users(self, param):
@@ -785,6 +785,7 @@ class LdapConnector(BaseConnector):
         if (phantom.is_fail(self._connect())):
             return self.get_status()
 
+        self.debug_print("set_pass-1")
         safe_params = dict(param)
         safe_params.pop('new_password')
         action_result = self.add_action_result(ActionResult(safe_params))
@@ -793,6 +794,7 @@ class LdapConnector(BaseConnector):
 
         user_base_dn = None
         # Query the server for user_base_dn
+        self.debug_print("set_pass-2")
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
@@ -801,6 +803,7 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("Working on User: ", username + "@" + user_base_dn)
 
+        self.debug_print("set_pass-3")
         password_value = ('"{0}"'.format(new_passwd)).encode("utf-16-le")
 
         # The modification list
@@ -817,6 +820,7 @@ class LdapConnector(BaseConnector):
         except Exception as e:
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_PASSWD_CHANGE_FAILED, e)
 
+        self.debug_print("set_pass-4")
         return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_USER_PASSWD_CHANGED)
 
     def _reset_password(self, param):
@@ -1063,7 +1067,6 @@ class LdapConnector(BaseConnector):
         action_result.update_summary({LDAP_JSON_TOTAL_USERS: 0})
 
         all_users = param[LDAP_JSON_ALL_USERS]
-
         if (all_users):
             dn_to_query = self.__base_dn
             search_filter = '(&(objectClass=User)(mail=*))'
@@ -1071,6 +1074,7 @@ class LdapConnector(BaseConnector):
             obj_name = param.get(LDAP_JSON_OBJECT_NAME)
             obj_class = param.get(LDAP_JSON_OBJECT_CLASS)
 
+            obj_name = u''.join(obj_name.decode('utf-8'))
             if (not obj_name):
                 return action_result.set_status(phantom.APP_ERROR,
                         "Parameter {0} not specified, it is required when all_users is set to False".format(LDAP_JSON_OBJECT_NAME))
@@ -1083,7 +1087,6 @@ class LdapConnector(BaseConnector):
 
             if (phantom.is_fail(ret_val)):
                 return action_result.get_status()
-
             # users are memberOf groups, not subclasses of groups, so if obj_class == group we need to add
             # memberOf=group_base_dn as a search filter and reset dn_to_query back to __base_dn
             if obj_class == 'group':

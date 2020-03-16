@@ -272,6 +272,11 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
         self.debug_print("Working on User:{0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
@@ -416,6 +421,11 @@ class LdapConnector(BaseConnector):
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
+
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
@@ -794,9 +804,14 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
-        self.debug_print("Working on User: ", UnicodeDammit(username).unicode_markup.encode('utf-8') + "@" + UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8'))
+        self.debug_print("Working on User: ", UnicodeDammit(username).unicode_markup.encode('utf-8') + "@" + user_base_dn)
 
         password_value = ('"{0}"'.format(UnicodeDammit(new_passwd).unicode_markup.encode('utf-8')))
 
@@ -828,9 +843,13 @@ class LdapConnector(BaseConnector):
         user_base_dn = None
         # Query the server for user_base_dn
         user_base_dn = self._get_user_dn(username, param, action_result)
-        user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
         if (user_base_dn is None):
             return action_result.get_status()
+
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
@@ -908,6 +927,11 @@ class LdapConnector(BaseConnector):
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
+
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
@@ -1068,7 +1092,6 @@ class LdapConnector(BaseConnector):
             obj_name = param.get(LDAP_JSON_OBJECT_NAME)
             obj_class = param.get(LDAP_JSON_OBJECT_CLASS)
 
-            obj_name = UnicodeDammit(obj_name).unicode_markup.encode('utf-8')
             if (not obj_name):
                 return action_result.set_status(phantom.APP_ERROR,
                         "Parameter {0} not specified, it is required when all_users is set to False".format(LDAP_JSON_OBJECT_NAME))

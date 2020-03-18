@@ -135,6 +135,7 @@ class LdapConnector(BaseConnector):
         # The search filter to query on, uses the machine_name that was given,
         # We currently support multiple formats
         # name, dNSHostName which is fqdn and DN which is distinguishedName i.e. CN=..., DC=...
+        machine_name = UnicodeDammit(machine_name).unicode_markup.encode('utf-8')
         name_filter = '|(name={0})(dNSHostName={0})(distinguishedName={0})'.format(machine_name)
         search_filter = '(&(objectCategory=computer)(objectClass=computer)({}))'.format(name_filter)
 
@@ -198,7 +199,9 @@ class LdapConnector(BaseConnector):
     def _get_user_dn(self, user, param, action_result):
 
         attribute = param.get(LDAP_JSON_ATTRIBUTE)
+        user = UnicodeDammit(user).unicode_markup.encode('utf-8')
         if (attribute):
+            attribute = UnicodeDammit(attribute).unicode_markup.encode('utf-8')
             return self._get_user_dn_with_attribute(attribute, user, action_result)
 
         # The search filter to query on, uses the user that was given,
@@ -309,7 +312,7 @@ class LdapConnector(BaseConnector):
 
         required_keys = ["useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"]
 
-        user_specified_fields = param.get('fields')
+        user_specified_fields = UnicodeDammit(param.get('fields')).unicode_markup.encode('utf-8')
         if user_specified_fields == 'all':
             valid_keys = []
         elif user_specified_fields:
@@ -396,11 +399,13 @@ class LdapConnector(BaseConnector):
             users_base_dn = r_data[0][0]
             self.debug_print("users_base_dn : {}".format(users_base_dn))
             if (users_base_dn is None):
-                action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class))
+                action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'"
+                .format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class))
                 return (phantom.APP_ERROR, None)
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class), e)
+                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed"
+                    .format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class), e)
             return (phantom.APP_ERROR, None)
 
         return (phantom.APP_SUCCESS, users_base_dn)
@@ -538,7 +543,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param[phantom.APP_JSON_HOSTNAME]
+        machine_name = param.get(phantom.APP_JSON_HOSTNAME)
 
         machine_base_dn = None
 
@@ -551,13 +556,12 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("machine_base_dn", machine_base_dn)
 
-        attrib_name = param[LDAP_JSON_ATTRIB_NAME]
+        attrib_name = UnicodeDammit(param[LDAP_JSON_ATTRIB_NAME]).unicode_markup.encode('utf-8')
 
         attrib_value = param[LDAP_JSON_ATTRIB_VALUE]
 
         # We could get the value as a hex string, that's what is expected for GUID like attributes
         attrib_value = self._parse_hex_string(attrib_value)
-
         attrib_value = self._handle_bool_string(attrib_value)
 
         # get the current value of the variable
@@ -624,7 +628,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param[phantom.APP_JSON_HOSTNAME]
+        machine_name = param.get(phantom.APP_JSON_HOSTNAME)
 
         machine_base_dn = None
 
@@ -742,7 +746,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param[phantom.APP_JSON_HOSTNAME]
+        machine_name = param.get(phantom.APP_JSON_HOSTNAME)
 
         machine_base_dn = None
 
@@ -755,7 +759,7 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("machine_base_dn", machine_base_dn)
 
-        ou_name = param[LDAP_JSON_OU]
+        ou_name = UnicodeDammit(param[LDAP_JSON_OU]).unicode_markup.encode('utf-8')
 
         ou_base_dn = ou_name
 
@@ -796,7 +800,7 @@ class LdapConnector(BaseConnector):
         safe_params.pop('new_password')
         action_result = self.add_action_result(ActionResult(safe_params))
         username = param.get(phantom.APP_JSON_USERNAME)
-        new_passwd = param.get(LDAP_JSON_NEW_PASSWORD)
+        new_passwd = UnicodeDammit(param.get(LDAP_JSON_NEW_PASSWORD)).unicode_markup.encode('utf-8')
 
         user_base_dn = None
         # Query the server for user_base_dn
@@ -838,8 +842,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        username = param[phantom.APP_JSON_USERNAME]
-
+        username = param.get(phantom.APP_JSON_USERNAME)
         user_base_dn = None
         # Query the server for user_base_dn
         user_base_dn = self._get_user_dn(username, param, action_result)
@@ -899,7 +902,7 @@ class LdapConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_ACC_SEARCH_EMPTY)
 
         if (curr_pwd_set == 0):
-            self.save_progress(LDAP_PROG_PASSWORD_CHANGE_STATUS_SAME_AS_REQUIRED, username)
+            self.save_progress(LDAP_PROG_PASSWORD_CHANGE_STATUS_SAME_AS_REQUIRED, UnicodeDammit(username).unicode_markup.encode('utf-8'))
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_PASSWORD_CHANGE_STATE_SAME)
 
         # The modification list
@@ -920,7 +923,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        username = param[phantom.APP_JSON_USERNAME]
+        username = param.get(phantom.APP_JSON_USERNAME)
 
         user_base_dn = None
         # Query the server for user_base_dn

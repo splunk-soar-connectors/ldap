@@ -506,11 +506,9 @@ class LdapConnector(BaseConnector):
     def _parse_hex_string(self, in_string):
 
         # First check if it is a hex string
-        cont_hex_string = in_string.replace(' ', '')
-
+        cont_hex_string = str(in_string).replace(' ', '')
         debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
-        self.debug_print('cont_hex_string', debug_cont_hex_string)
-
+        self.debug_print(debug_cont_hex_string)
         try:
             int(cont_hex_string, 16)
         except ValueError:
@@ -519,8 +517,7 @@ class LdapConnector(BaseConnector):
         # Need to convert it to an escaped binary string,
         # First create a list of 2 chars hex value, each of which gets converted to a int
         # the chr of which is added to a string
-        bin_str = ''.join([chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)])
-
+        bin_str = [chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)]
         # This would dump bin chars, so don't dump
         # self.debug_print('bin_str', bin_str)
 
@@ -559,7 +556,6 @@ class LdapConnector(BaseConnector):
         attrib_name = UnicodeDammit(param[LDAP_JSON_ATTRIB_NAME]).unicode_markup.encode('utf-8')
 
         attrib_value = param[LDAP_JSON_ATTRIB_VALUE]
-
         # We could get the value as a hex string, that's what is expected for GUID like attributes
         attrib_value = self._parse_hex_string(attrib_value)
         attrib_value = self._handle_bool_string(attrib_value)
@@ -599,13 +595,18 @@ class LdapConnector(BaseConnector):
         except:
             # print "useAccountControl: 0x%x" % curr_attrib_value
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_ATTRIB_NOT_FOUND)
+        attrib_val = ''
+        if(isinstance(attrib_value, list)):
+            for i in attrib_value:
+                attrib_val += hex(unpack('B', i)[0]).split('x')[-1]
+        else:
+            attrib_val = attrib_value
 
-        if (str(curr_attrib_value) == str(attrib_value)):
+        if (str(curr_attrib_value) == str(attrib_val)):
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_MSG_ATTRIB_VALUE_SAME)
 
         # The modification list
-        mod_list = [(ldap.MOD_REPLACE, str(attrib_name), str(attrib_value))]  # pylint: disable=E1101
-
+        mod_list = [(ldap.MOD_REPLACE, str(attrib_name), str(attrib_val))]  # pylint: disable=E1101
         # Now run the modify command on the base_dn
         try:
             self.__ldap_conn.modify_s(machine_base_dn, mod_list)
@@ -1093,7 +1094,7 @@ class LdapConnector(BaseConnector):
             search_filter = '(&(objectClass=User)(mail=*))'
         else:
             obj_name = param.get(LDAP_JSON_OBJECT_NAME)
-            obj_class = param.get(LDAP_JSON_OBJECT_CLASS)
+            obj_class = UnicodeDammit(param.get(LDAP_JSON_OBJECT_CLASS)).unicode_markup.encode('utf-8')
 
             if (not obj_name):
                 return action_result.set_status(phantom.APP_ERROR,

@@ -58,7 +58,7 @@ class LdapConnector(BaseConnector):
         try:
             r_data = self.__ldap_conn.search_s("", ldap.SCOPE_BASE, "cn=*", ['defaultNamingContext'])  # pylint: disable=E1101
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED, e)
+            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED, str(e))
 
         # Parse the result
         if not r_data:
@@ -558,7 +558,14 @@ class LdapConnector(BaseConnector):
         attrib_value = param[LDAP_JSON_ATTRIB_VALUE]
         # We could get the value as a hex string, that's what is expected for GUID like attributes
         attrib_value = self._parse_hex_string(attrib_value)
-        attrib_value = self._handle_bool_string(attrib_value)
+        # Decoded attribute_value which is encoded with base 16 and than converted to character
+        attrib_val = ''
+        if(isinstance(attrib_value, list)):
+            for i in attrib_value:
+                attrib_val += hex(unpack('B', i)[0]).split('x')[-1]
+        else:
+            attrib_val = attrib_value
+        attrib_value = self._handle_bool_string(attrib_val)
 
         # get the current value of the variable
         # The attribute list to query
@@ -595,12 +602,6 @@ class LdapConnector(BaseConnector):
         except:
             # print "useAccountControl: 0x%x" % curr_attrib_value
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_ATTRIB_NOT_FOUND)
-        attrib_val = ''
-        if(isinstance(attrib_value, list)):
-            for i in attrib_value:
-                attrib_val += hex(unpack('B', i)[0]).split('x')[-1]
-        else:
-            attrib_val = attrib_value
 
         if (str(curr_attrib_value) == str(attrib_val)):
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_MSG_ATTRIB_VALUE_SAME)
@@ -1003,14 +1004,30 @@ class LdapConnector(BaseConnector):
         try:
             self.__ldap_conn = ldap.initialize(ldap_url)  # pylint: disable=E1101
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_INITIALIZATION_FAILED, e)
+            try:
+                if e.args:
+                    if len(e.args) > 1:
+                        error_code = e.args[0]
+                        error_msg = e.args[1]
+                    elif len(e.args) == 1:
+                        error_code = "Error code unavailable"
+                        error_msg = e.args[0]
+                else:
+                    error_code = "Error code unavailable"
+                    error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
+            except:
+                error_code = "Error code unavailable"
+                error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
+            error_msg = UnicodeDammit(error_msg).unicode_markup.encode('utf-8')
+
+            return self.set_status(phantom.APP_ERROR, "{0} Error code:{1} Error Message:{2}".format(LDAP_ERR_INITIALIZATION_FAILED, error_code, error_msg))
 
         # handle None return, the docs are not clear what happens in case of failure
         # supposedly the call will always return an object, since that's all
         # it does, create an object, no communication is actually carried out
         # with the ldap server
         if (self.__ldap_conn is None):
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_INITIALIZATION_FAILED, e)
+            return self.set_status(phantom.APP_ERROR, LDAP_ERR_INITIALIZATION_FAILED, str(e))
 
         # set few options, required
         self.__ldap_conn.set_option(ldap.OPT_REFERRALS, 0)  # pylint: disable=E1101
@@ -1025,10 +1042,10 @@ class LdapConnector(BaseConnector):
             return status
 
         self.save_progress(LDAP_PROG_GOT_BASE_DN, self.__base_dn)
-
         # Get the username, we might have to modify the format a bit
-        username = config[phantom.APP_JSON_USERNAME]
+        username = config.get(phantom.APP_JSON_USERNAME)
 
+        password = config.get(phantom.APP_JSON_PASSWORD)
         # We could prefex the username with the domain name, but not too sure
         # how this will pan out, so for now keeping it as is. In case login
         # fails, the asset config will need to specify the username as
@@ -1036,12 +1053,24 @@ class LdapConnector(BaseConnector):
         username = username.replace('/', '\\')
 
         self.save_progress(phantom.APP_PROG_CONNECTING_TO_ELLIPSES, ldap_server)
-
         # Try binding to the server now
         try:
-            self.__ldap_conn.simple_bind_s(username, config[phantom.APP_JSON_PASSWORD])
+            self.__ldap_conn.simple_bind_s(username, password)
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BIND_FAILED, e)
+            if e.message:
+                if isinstance(e.message, basestring):
+                    error_msg = UnicodeDammit(e.message).unicode_markup.encode('UTF-8')
+                elif isinstance(e.message, dict):
+                    error_msg = e.message
+                else:
+                    try:
+                        error_msg = UnicodeDammit(e.message).unicode_markup.encode('utf-8')
+                    except:
+                        error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
+            else:
+                error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
+
+            return self.set_status(phantom.APP_ERROR, "{0}. {1}".format(LDAP_ERR_BIND_FAILED, error_msg))
 
         return phantom.APP_SUCCESS
 
@@ -1053,7 +1082,7 @@ class LdapConnector(BaseConnector):
         ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)  # pylint: disable=E1101
 
         # The server
-        ldap_server = config[phantom.APP_JSON_SERVER]
+        ldap_server = UnicodeDammit(config.get(phantom.APP_JSON_SERVER)).unicode_markup.encode('utf-8')
 
         # First try with ssl
         self.__using_ssl = True
@@ -1088,7 +1117,7 @@ class LdapConnector(BaseConnector):
         action_result = self.add_action_result(ActionResult(dict(param)))
         action_result.update_summary({LDAP_JSON_TOTAL_USERS: 0})
 
-        all_users = param[LDAP_JSON_ALL_USERS]
+        all_users = param.get(LDAP_JSON_ALL_USERS)
         if (all_users):
             dn_to_query = self.__base_dn
             search_filter = '(&(objectClass=User)(mail=*))'

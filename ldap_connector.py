@@ -58,7 +58,7 @@ class LdapConnector(BaseConnector):
         try:
             r_data = self.__ldap_conn.search_s("", ldap.SCOPE_BASE, "cn=*", ['defaultNamingContext'])  # pylint: disable=E1101
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED, str(e))
+            return self.set_status(phantom.APP_ERROR, "{0} {1}".format(LDAP_ERR_BASE_DN_FAILED, e))
 
         # Parse the result
         if not r_data:
@@ -311,12 +311,12 @@ class LdapConnector(BaseConnector):
         "manager", "title", "company", "department", "mail", "streetaddress", "l", "st", "co", "postalcode", "postofficebox"]
 
         required_keys = ["useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"]
+        user_specified_fields = param.get('fields')
 
-        user_specified_fields = UnicodeDammit(param.get('fields')).unicode_markup.encode('utf-8')
         if user_specified_fields == 'all':
             valid_keys = []
         elif user_specified_fields:
-            valid_keys = [x.strip() for x in str(user_specified_fields).lower().split(',')]
+            valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
             valid_keys.extend(required_keys)
@@ -543,7 +543,6 @@ class LdapConnector(BaseConnector):
         machine_name = param.get(phantom.APP_JSON_HOSTNAME)
 
         machine_base_dn = None
-
         # Query the server for machine_base_dn
         machine_base_dn = self._get_machine_dn(machine_name, action_result)
         if (phantom.is_fail(action_result.get_status())):
@@ -675,7 +674,7 @@ class LdapConnector(BaseConnector):
         if user_specified_fields == 'all':
             valid_keys = []
         elif user_specified_fields:
-            valid_keys = [x.strip() for x in str(user_specified_fields).lower().split(',')]
+            valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
             valid_keys.extend(required_keys)
@@ -1014,20 +1013,23 @@ class LdapConnector(BaseConnector):
                         error_msg = e.args[0]
                 else:
                     error_code = "Error code unavailable"
-                    error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
+                    error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
+                error_msg = UnicodeDammit(error_msg).unicode_markup.encode('utf-8')
+            except TypeError:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or the action parameters."
             except:
                 error_code = "Error code unavailable"
-                error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
-            error_msg = UnicodeDammit(error_msg).unicode_markup.encode('utf-8')
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
 
-            return self.set_status(phantom.APP_ERROR, "{0} Error code:{1} Error Message:{2}".format(LDAP_ERR_INITIALIZATION_FAILED, error_code, error_msg))
+            return self.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_INITIALIZATION_FAILED, error_code, error_msg))
 
         # handle None return, the docs are not clear what happens in case of failure
         # supposedly the call will always return an object, since that's all
         # it does, create an object, no communication is actually carried out
         # with the ldap server
         if (self.__ldap_conn is None):
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_INITIALIZATION_FAILED, str(e))
+            return self.set_status(phantom.APP_ERROR, "{}. Please check the asset configuration and|or action parameters.".format(LDAP_ERR_INITIALIZATION_FAILED))
 
         # set few options, required
         self.__ldap_conn.set_option(ldap.OPT_REFERRALS, 0)  # pylint: disable=E1101
@@ -1057,20 +1059,26 @@ class LdapConnector(BaseConnector):
         try:
             self.__ldap_conn.simple_bind_s(username, password)
         except Exception as e:
-            if e.message:
-                if isinstance(e.message, basestring):
-                    error_msg = UnicodeDammit(e.message).unicode_markup.encode('UTF-8')
-                elif isinstance(e.message, dict):
-                    error_msg = e.message
+            try:
+                if e.args:
+                    if len(e.args) > 1:
+                        error_code = e.args[0]
+                        error_msg = e.args[1]
+                    elif len(e.args) == 1:
+                        error_code = "Error code unavailable"
+                        error_msg = e.args[0]
                 else:
-                    try:
-                        error_msg = UnicodeDammit(e.message).unicode_markup.encode('utf-8')
-                    except:
-                        error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
-            else:
-                error_msg = "Unknown error occurred. Please check the asset configuration and|or action parameters."
+                    error_code = "Error code unavailable"
+                    error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
+                error_msg = UnicodeDammit(error_msg).unicode_markup.encode('utf-8')
+            except TypeError:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or the action parameters."
+            except:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
 
-            return self.set_status(phantom.APP_ERROR, "{0}. {1}".format(LDAP_ERR_BIND_FAILED, error_msg))
+            return self.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_BIND_FAILED, error_code, error_msg))
 
         return phantom.APP_SUCCESS
 

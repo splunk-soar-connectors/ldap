@@ -538,7 +538,7 @@
                 "fields": {
                     "order": 2,
                     "data_type": "string",
-                    "description": "Get fields (comma separated)"
+                    "description": "Get fields (comma-separated)"
                 }
             },
             "output": [
@@ -970,7 +970,7 @@
                 "fields": {
                     "order": 4,
                     "data_type": "string",
-                    "description": "Get fields (comma separated)"
+                    "description": "Get fields (comma-separated)"
                 },
                 "hostname": {
                     "contains": [

@@ -340,6 +340,9 @@ class LdapConnector(BaseConnector):
         self.debug_print("Attributes: {0}".format(attributes))
         action_result.add_data(attributes)
         # Create the summary
+        for key, value in attributes.iteritems():
+            if key not in required_keys:
+                action_result.update_summary({key: value})
         try:
             if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
                 action_result.update_summary({LDAP_JSON_STATE: 'Disabled'})
@@ -699,7 +702,12 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("Attributes", attributes)
         action_result.add_data(attributes)
+
         # Create the summary
+        for key, value in attributes.iteritems():
+            if key not in required_keys:
+                action_result.update_summary({key: value})
+
         if ('operatingsystem' in attributes):
             os_string = '{0}'.format(attributes['operatingsystem'])
             if ('operatingsystemversion' in attributes):

@@ -14,6 +14,7 @@ from phantom.action_result import ActionResult
 from ldap_consts import *
 
 import ldap
+from ldap.controls import SimplePagedResultsControl
 from datetime import datetime, timedelta
 from struct import unpack
 import codecs
@@ -376,7 +377,7 @@ class LdapConnector(BaseConnector):
 
     def _get_object_base_dn(self, obj_name, obj_class, action_result):
 
-        search_filter = '(&(objectClass={0})(name={1}))'.format(obj_class, UnicodeDammit(obj_name).unicode_markup.encode('utf-8'))
+        search_filter = '(&(objectClass={0})(name={1}))'.format(obj_class, obj_name)
 
         # The attribute that we are interested in
         attr_list = ['dn']
@@ -386,7 +387,7 @@ class LdapConnector(BaseConnector):
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Failed to get Base DN for {0} of class: {1}. Can't proceed".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class), e)
+                    "Failed to get Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class), e)
             return (phantom.APP_ERROR, None)
 
         action_result.add_debug_data(r_data)
@@ -394,24 +395,52 @@ class LdapConnector(BaseConnector):
         # Parse the result
         if not r_data:
             action_result.set_status(phantom.APP_ERROR,
-                    "Got empty result while querying the Base DN for {0} of class: {1}. Can't proceed".format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class))
+                    "Got empty result while querying the Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class))
             return (phantom.APP_ERROR, None)
 
         try:
             self.debug_print("r_data", r_data)
             users_base_dn = r_data[0][0]
-            self.debug_print("users_base_dn : {}".format(users_base_dn))
+            try:
+                self.debug_print("users_base_dn : {}".format(UnicodeDammit(users_base_dn).unicode_markup.encode('utf-8')))
+            except:
+                self.debug_print("Error occured while logging the data of user_base_dn")
             if (users_base_dn is None):
                 action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'"
-                .format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class))
+                .format(obj_name, obj_class))
                 return (phantom.APP_ERROR, None)
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
                     "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed"
-                    .format(UnicodeDammit(obj_name).unicode_markup.encode('utf-8'), obj_class), e)
+                    .format(obj_name, obj_class), e)
             return (phantom.APP_ERROR, None)
 
         return (phantom.APP_SUCCESS, users_base_dn)
+
+    def _handle_pagination(self, param, dn, action_result, search_filter=None, attr_list=None):
+
+        max_results = param.get('max_results')
+        results = []
+        first_pass = True
+        i = 0
+        page_control = SimplePagedResultsControl(LDAP_PAGINATION_CRITICALITY, LDAP_PAGINATION_PAGE_SIZE, LDAP_PAGINATION_COOKIE)
+
+        while first_pass or page_control.cookie:
+            i += 1
+            first_pass = False
+            try:
+                message_id = self.__ldap_conn.search_ext(dn, ldap.SCOPE_SUBTREE, search_filter, attr_list, serverctrls=[page_control])  # pylint: disable=E1101
+            except Exception as e:
+                return action_result.set_status(phantom.APP_ERROR, "Failed to get data from ldap. Error: {}".format(e))
+
+            result_type, r_data, msgid, serverctrls = self.__ldap_conn.result3(message_id)
+            page_control.cookie = serverctrls[0].cookie
+            results.extend(r_data)
+            if max_results and len(results) >= max_results:
+                results = results[:max_results]
+                break
+
+        return results
 
     def _get_groups_of_users(self, param):
 
@@ -520,7 +549,10 @@ class LdapConnector(BaseConnector):
         # Need to convert it to an escaped binary string,
         # First create a list of 2 chars hex value, each of which gets converted to a int
         # the chr of which is added to a string
-        bin_str = [chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)]
+        try:
+            bin_str = [chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)]
+        except:
+            return in_string
         # This would dump bin chars, so don't dump
         # self.debug_print('bin_str', bin_str)
 
@@ -826,8 +858,8 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("Working on User: ", UnicodeDammit(username).unicode_markup.encode('utf-8') + "@" + user_base_dn)
 
-        password_value = ('"{0}"'.format(UnicodeDammit(new_passwd).unicode_markup.encode('utf-8')))
-
+        unicode_pass = unicode("\"" + new_passwd + "\"", "iso-8859-1")
+        password_value = unicode_pass.encode("utf-16-le")
         # The modification list
         mod_list = [((ldap.MOD_REPLACE, 'unicodePwd', [password_value]))]  # pylint: disable=E1101
 
@@ -1139,7 +1171,7 @@ class LdapConnector(BaseConnector):
             search_filter = '(&(objectClass=User)(mail=*))'
         else:
             obj_name = param.get(LDAP_JSON_OBJECT_NAME)
-            obj_class = UnicodeDammit(param.get(LDAP_JSON_OBJECT_CLASS)).unicode_markup.encode('utf-8')
+            obj_class = param.get(LDAP_JSON_OBJECT_CLASS)
 
             if (not obj_name):
                 return action_result.set_status(phantom.APP_ERROR,
@@ -1148,6 +1180,8 @@ class LdapConnector(BaseConnector):
             if (not obj_class):
                 return action_result.set_status(phantom.APP_ERROR,
                         "Parameter {0} not specified, it is required when all_users is set to False".format(LDAP_JSON_OBJECT_CLASS))
+            obj_name = UnicodeDammit(obj_name).unicode_markup.encode('utf-8')
+            obj_class = UnicodeDammit(obj_class).unicode_markup.encode('utf-8')
 
             ret_val, dn_to_query = self._get_object_base_dn(obj_name, obj_class, action_result)
 
@@ -1168,7 +1202,7 @@ class LdapConnector(BaseConnector):
 
         # Now search
         try:
-            r_data = self.__ldap_conn.search_s(dn_to_query, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
+            r_data = self._handle_pagination(param, dn_to_query, action_result, search_filter=search_filter, attr_list=attr_list)  # pylint: disable=E1101
         except Exception as e:
             return action_result.set_status(phantom.APP_ERROR, "Failed to get Users", e)
 

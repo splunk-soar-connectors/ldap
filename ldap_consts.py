@@ -77,3 +77,8 @@ LDAP_PROG_GOT_DN = "Got {dn_type} DN: {dn}"
 LDAP_PROG_SSL_FAILED_TRYING_NON_SSL = "SSL connection failed, trying non-ssl"
 
 LDAP_MSG_NON_SSL_NOT_ALLOWED = "Configuration does not allow to try non-ssl connection"
+
+# Pagination
+LDAP_PAGINATION_CRITICALITY = True
+LDAP_PAGINATION_PAGE_SIZE = 1000
+LDAP_PAGINATION_COOKIE = ''

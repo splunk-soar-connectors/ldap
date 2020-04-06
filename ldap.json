@@ -14,6 +14,10 @@
     "min_phantom_version": "4.6.19142",
     "logo": "logo_microsoft.svg",
     "logo_dark": "logo_microsoft_dark.svg",
+    "latest_tested_versions": [
+        "ldap platform Windows Server 2008 R2 Enterprise",
+        "ldap v3.2.0"
+    ],
     "license": "Copyright (c) 2016-2020 Splunk Inc.",
     "configuration": {
         "username": {
@@ -59,6 +63,7 @@
             "type": "contain",
             "identifier": "disable_user",
             "read_only": false,
+            "undo": "enable user",
             "parameters": {
                 "username": {
                     "contains": [
@@ -141,6 +146,7 @@
             "type": "correct",
             "identifier": "enable_user",
             "read_only": false,
+            "undo": "disable user",
             "parameters": {
                 "username": {
                     "contains": [
@@ -1562,6 +1568,11 @@
                     "order": 0,
                     "data_type": "boolean",
                     "description": "Get All Users (other params are ignored if set)"
+                },
+                "max_results": {
+                    "data_type": "numeric",
+                    "description": "Number of users to fetch",
+                    "order": 4
                 }
             },
             "output": [
@@ -1587,6 +1598,13 @@
                         "container"
                     ],
                     "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.max_results",
+                    "example_values": [
+                        10
+                    ],
+                    "data_type": "numeric"
                 },
                 {
                     "data_path": "action_result.parameter.object_name",

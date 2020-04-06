@@ -5,11 +5,438 @@
   without a valid written license from Splunk Inc. is PROHIBITED.
 -->
 
-<p>The app will first try to connect to the server using ssl. If a secure connection cannot be made, then a non-ssl connection will be tried, if the config allows.</p>
-<p>Many actions like <b>get system attributes, change system ou</b> etc. work on a <b>host name</b>. The app supports the following formats as input:
-<ul>
-  <li>Host name format for e.g. WIN10ENTX64 (<i>name</i> in AD nomenclature)</li>
-  <li>DNS Host name for e.g. Win10Entx64.corp.contoso.com (<i>dNSHostName</i>)</li>
-  <li>Distinguished name format for e.g. CN=WIN10ENTX64,CN=Computers,DC=corp,DC=contoso,DC=com. (<i>distinguishedName</i>)</li>
-</ul>
-</p>
+<html>
+  <body>
+    <p><h2>Setting up the Environment</h2>
+        <ol>
+          <li>Login into the LDAP Server using Remote Desktop Connection.</li>
+          <li>Using the LDAP Server(Remote Desktop), Create a new user or login with the existing user.</li>
+          <li>By default new user is a member of Domain Users.</li>
+          <li>To run any action, you should have remote access rights which need to be updated by changing the remote settings in system properties. After adding them, you will receive Remote Desktop access rights which can be verified by accessing the member of property of the user.</li>
+          <li>You can check the test connectivity and run actions that do not update the schema definition of the application.</li>
+          <li>For running actions such as 'set system attribute' which updates the LDAP database the user should be a member of the Organizational Manager and Schema Admins which can be added by altering the member of property of the user.</li>
+        </ol>
+
+    <p><h2>Steps to change Page size</h2>
+        <ol>
+          <li>Login into the LDAP Server using Remote Desktop Connection.</li>
+          <li>Click Start, and then click Run.In the Open text box, type ntdsutil, and then press ENTER</li>
+          <li>At the Ntdsutil.exe command prompt, type LDAP policies, and then press ENTER</li>
+          <li>At the LDAP policy command prompt, type connections, and then press ENTER</li>
+          <li>At the server connection command prompt, type connect to server DNS name of server, and then press ENTER. You want to connect to the server that your are currently working with.</li>
+          <li>At the server connection command prompt, type q, and then press ENTER to return to the previous menu.</li>
+          <li>At the LDAP policy command prompt, type Set MaxPageSize to x, and then press ENTER. For example, type Set MaxPageSize to 8</li>
+          <li>To save the changes, type Commit Changes</li>
+          <li>When you finish, type q, and then press ENTER</li>
+        </ol>
+        
+    <p><h2>Asset Configuration Parameters</h2>
+      The asset configuration parameters affect [test connectivity] and all the other actions of the application. Below are the explanation and usage of all those parameters.
+      <ul>
+          <li>
+              <b>Server IP/Hostname - </b> The user can provide LDAP server IP address or hostname for establishing the connection. The app supports the following formats as input for hostname:
+              <ul>
+                <li>DNS Host name for e.g. Win10Entx64.corp.contoso.com (<i>dNSHostName</i>)</li>
+                <li>Distinguished name format for e.g. CN=WIN10ENTX64,CN=Computers,DC=corp,DC=contoso,DC=com. (<i>distinguishedName</i>)</li>
+              </ul>
+          </li>
+          <li>
+              <b>Administrator username - </b> This parameter states the username required for authentication. This authentication ensures that User A only has access to the information they need and can’t see the sensitive information of User B unless User A had Administrator priviliges.
+          </li>
+          <li>
+              <b>Administrator password - </b> This parameter states the password required for authentication. The credentials entered are sent to the LDAP's server and compared with the users details stored on the LDAP server.
+          </li>
+          <li>
+              <b>Force use of SSL - </b>  This parameters states whether to forcefully use SSL to establish connection with the LDAP server. If not provided The app will first try to connect to the server using ssl. If a secure connection cannot be made, then a non-ssl connection will be tried, if the config allows.
+          </li>
+      </ul>
+  </p>
+
+
+
+  <p><h2>LDAP Action Parameters</h2>
+    <ol>
+        <h3><li>Test Connectivity</li></h3>
+            <ul>
+                <li> This action will test the connectivity of the Phantom server to the LDAP server by logging into the device using the provided asset configuration parameters.</li>
+                <li> The action validates the provided asset configuration parameters. Based on the response from LDAP Server, appropriate success or failure message will be displayed when the action gets executed.
+                </li>
+            </ul>
+        <br>
+
+        <h3><li>Disable User</li></h3>
+            <ul>
+                <li>This action disables the specified user.</li>
+                <br>
+                <li><b><u>Action Parameters</u></b>​
+
+                  <ol type="i"><br>
+                  <b><li>Username</li></b>
+                    <ul>
+                        <li>This parameter specifies the username to disable.It is a mandatory action parameter.</li>
+                        <li><b>Examples:</b>
+                          <ul>
+                            <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
+                            <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
+                            <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                            <li>Domain\\user_name, for example, Corp\\test_user</li>
+                          </ul>
+                        </li>
+                    </ul>
+                  </ol>
+                </li>
+                <br>
+                </ul>
+
+        <h3><li>Enable User</li></h3>
+            <ul>
+                <li>This action enables the specified user.</li>
+                <br>
+                <li><b><u>Action Parameters</u></b>​
+
+                  <ol type="i"><br>
+                  <b><li>Username</li></b>
+                    <ul>
+                        <li>This parameter specifies the username to enable.It is a mandatory action parameter.</li>
+                        <li><b>Examples:</b>
+                          <ul>
+                            <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
+                            <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
+                            <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                            <li>Domain\\user_name, for example, Corp\\test_user</li>
+                          </ul>
+                        </li>
+                    </ul>
+                    </ol>
+                </li>
+                <br>
+                </ul>
+
+        <h3><li>List User Groups</li></h3>
+            <ul>
+              <li>This action lists the groups that the user is a member of.</li>
+              <br>
+              <li><b><u>Action Parameters</u></b>​
+
+                <ol type="i"><br>
+                <b><li>Username</li></b>
+                  <ul>
+                      <li>This parameter specifies the username to fetch the groups it belongs to.It is a mandatory action parameter.</li>
+                      <li><b>Examples:</b>
+                        <ul>
+                          <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
+                          <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
+                          <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                          <li>Domain\\user_name, for example, Corp\\test_user</li>
+                        </ul>
+                      </li>
+                  </ul>
+                  </ol>
+              </li>
+              <br>
+              </ul>
+
+
+        <h3><li>Change System OU</li></h3>
+        <ul>
+          <li>This action changes the organizational unit of the system.</li>
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Hostname</li></b>
+              <ul>
+                  <li>This parameter specifies the hostname.It is a mandatory action parameter.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>Host name format for e.g. test_computerdata1 (<i>name</i> in AD nomenclature)</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              <b><li>OU</li></b>
+              <ul>
+                  <li>This parameter is used to change the organizational unit(OU) of the system.It is a mandatory action parameter.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>Distinguished name format, for example, OU=ShawOU2,OU=ShawOU,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              </ol>
+          </li>
+          <br>
+          </ul>
+
+        <h3><li>Set System Attribute</li></h3>
+        <ul>
+          <li>This action sets the value of an attribute of a computer/system.</li>
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Hostname</li></b>
+              <ul>
+                  <li>This parameter specifies the hostname for which we need to set the attribute.It is a mandatory action parameter.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>Host name format for e.g. test_computerdata1 (<i>name</i> in AD nomenclature)</li>
+                    </ul>
+                  </li>
+              </ul>
+
+
+
+              <b><li>Attribute Name and Attribute Value</li></b>
+              <ul>
+                  <li>These are the required parameters.Attribute Name specifies the name of the attribute which needs to be modified.Attribute Value specifies the value which needs to be set. </li>
+                  <br><li><b>Examples:</b>
+                    <ul>
+                      <li>
+                        To set the country code: Attribute Name: "countrycode" and Attribute Value: 79
+                      </li>
+                    </ul>
+                  </li>
+              </ul>
+
+
+              </ol>
+          </li>
+          <br>
+          </ul>
+
+
+        <h3><li>Get User Attributes</li></h3>
+        <ul>
+          <li>This action lists the attributes for the specified user.</li>
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Username</li></b>
+              <ul>
+                  <li>This parameter specifies the username or attribute value which needs to be matched.It is a mandatory action parameter.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
+                      <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
+                      <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                      <li>Domain\\user_name, for example, Corp\\test_user</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              <b><li>Attribute</li></b>
+              <ul>
+                  <li>This parameter specifies the attribute name to match.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>If we want to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error.</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              <b><li>Fields</li></b>
+              <ul>
+                  <li>This parameter fetches the fields specified. It supports comma-separated list of fields. By default, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values. </li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>For only specific fields: "samaccountname,useraccountcontrol"</li>
+                      <li><u>Note: </u> If the fields parameter is kept empty, then also required fields will be fetched.</li>
+                    </ul>
+                  </li>
+              </ul>
+
+
+              </ol>
+          </li>
+          <br>
+          </ul>
+
+
+        <h3><li>Get System Attributes</li></h3>
+        <ul>
+          <li>This action lists the attributes of a computer/system.</li>
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Hostname</li></b>
+              <ul>
+                  <li>This parameter specifies the hostname for which we need to get the attributes.It is a mandatory action parameter.</li>
+                  <li><b>Example:</b>
+                    <ul>
+                      <li>Host name format for e.g. test_computerdata1 (<i>name</i> in AD nomenclature)</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              <b><li>Fields</li></b>
+              <ul>
+                  <li>This parameter fetches the fields specified. It supports comma-separated list of fields. By default, operatingsystem, operatingsystemversion, operatingsystemservicepack, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>To fetch all the fields: Fields = "all"</li>
+                      <li>For only specific fields: Fields = "samaccountname,displayname" </li>
+                      <li><u>Note: </u> If the fields parameter is kept empty, then also required fields will be fetched.</li>
+                    </ul>
+                  </li>
+              </ul>
+
+
+              </ol>
+          </li>
+          <br>
+          </ul>
+
+        <h3><li>Set Password</li></h3>
+        <ul>
+          <li>This action sets the password provided by the user.</li>
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Username</li></b>
+              <ul>
+                  <li>This parameter specifies the username for which we need to change the password.It is a mandatory action parameter.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
+                      <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
+                      <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                      <li>Domain\\user_name, for example, Corp\\test_user</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              <b><li>New Password</li></b>
+              <ul>
+                  <li>This parameter is used to set the new password.It is a mandatory action parameter.</li>
+                  <li><b>Example:</b>
+                    <ul><li>New Password: abc@123</li></ul>
+                  </li>
+              </ul>
+
+
+              </ol>
+          </li>
+          <br>
+          </ul>
+
+        <h3><li>Reset Password</li></h3>
+        <ul>
+          <li>This action forces the user to change the password at the next logon.</li>
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Username</li></b>
+              <ul>
+                  <li>This parameter specifies the username for which we need to enforce change password on next logon.It is a mandatory action parameter.</li>
+                  <li><b>Examples:</b>
+                    <ul>
+                      <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
+                      <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
+                      <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
+                      <li>Domain\\user_name, for example, Corp\\test_user</li>
+                    </ul>
+                  </li>
+              </ul>
+
+              </ol>
+              <br>
+              <p><b>Note: </b>Once the password is reset, the user is required to login and enter the new password interactively. Therefore auto logins (from applications) will fail.</p>
+          </li>
+          <br>
+          </ul>
+
+
+        <h3><li>Get Users</li></h3>
+        <ul>
+          <li>This action lists the users based on the parameters provided. The max_results parameter specifies the number of users that the action will fetch, if this parameter is not provided, then the action defaults to all values.Default value 0f page size in action is 1000.By default page size is 1000 in Ldap server.</li>
+          <li>Observations of ldap pagination
+            <ul>
+              <table>
+                <tr>
+                  <th>Users</th>
+                  <th>Page size phantom</th>
+                  <th>Page size ldap</th>
+                  <th>output</th>
+                </tr>
+                <tr>
+                  <td>110</td>
+                  <td>50</td>
+                  <td>50</td>
+                  <td>50-50-10</td>
+                </tr>
+                <tr>
+                  <td>110</td>
+                  <td>55</td>
+                  <td>50</td>
+                  <td>50-50-10</td>
+                </tr>
+                <tr>
+                  <td>110</td>
+                  <td>25</td>
+                  <td>50</td>
+                  <td>25-25-25-25-10</td>
+                </tr>
+              </table>  
+            </ul>
+          </li>
+          <li>Steps to change Page size
+            <ul>
+              <li>Login into the LDAP Server using Remote Desktop Connection.</li>
+              <li>Click Start, and then click Run.In the Open text box, type ntdsutil, and then press ENTER</li>
+              <li>At the Ntdsutil.exe command prompt, type LDAP policies, and then press ENTER</li>
+              <li>At the LDAP policy command prompt, type connections, and then press ENTER</li>
+              <li>At the server connection command prompt, type connect to server DNS name of server, and then press ENTER. You want to connect to the server that your are currently working with.</li>
+              <li>At the server connection command prompt, type q, and then press ENTER to return to the previous menu.</li>
+              <li>At the LDAP policy command prompt, type Set MaxPageSize to x, and then press ENTER. For example, type Set MaxPageSize to 8</li>
+              <li>To save the changes, type Commit Changes</li>
+              <li>When you finish, type q, and then press ENTER</li>
+            </ul>
+          </li>
+
+          <br>
+          <li><b><u>Action Parameters</u></b>​
+
+            <ol type="i"><br>
+            <b><li>Object Name</li></b>
+              <ul>
+                  <li>This parameter specifies the object name for which we need to list the users.If object name is not provided, it will set object name as Users.</li>
+              </ul>
+
+
+
+              <b><li>Object Class</li></b>
+              <ul>
+                  <li>This parameter specifies the object class for which we need to list the users.If object class is not provided, it will set object class as container. </li>
+                  <li><b>Examples:</b>
+                    <ul><li>Object Class is a value list so user has to choose from container, organizational unit or group.</li></ul>
+                  </li>
+              </ul>
+
+
+
+              <b><li>All Users</li></b>
+              <ul>
+                  <li>This parameter is used to list all the users while ignoring all the other parameters.</li>
+              </ul>
+
+              </ol>
+          </li>
+          <br>
+          </ul>
+
+
+
+
+        </ol>
+        </p>
+      </body>
+</html>
+
+
+

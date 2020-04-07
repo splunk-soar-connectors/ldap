@@ -59,7 +59,7 @@
         {
             "action": "disable user",
             "description": "Disables the specified user",
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul><b>Action functional workflow</b><ul><li>This action will first find the user DN(distinguish name) using a filter of Hostname which is provided by the user as a parameter</li> <li>Now it will search for userAccountControl parameter for provided DN.</li> <li>If userAccountControl parameter not none and action identifier is disable_user then it will modify the user state to disable mode</li> </ul>",
             "type": "contain",
             "identifier": "disable_user",
             "read_only": false,
@@ -142,7 +142,7 @@
         {
             "action": "enable user",
             "description": "Enables the specified user",
-            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul>",
+            "verbose": "The action supports the following formats as input for <b>username</b>: <ul> <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li> <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li> <li>Distinguished name format, for example, CN=Test User,CN=Users,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li> <li>Domain\\user_name, for example, Corp\\test_user</li> </ul><b>Action functional workflow</b><ul><li>This action will first find the user DN(distinguish name) using a filter of Hostname which is provided by the user as a parameter</li> <li>Now it will search for userAccountControl parameter for provided DN.</li> <li>If userAccountControl parameter not none and action identifier is enable_user the it will modify the user state to enable mode</li></ul>",
             "type": "correct",
             "identifier": "enable_user",
             "read_only": false,
@@ -407,6 +407,7 @@
         {
             "action": "set system attribute",
             "description": "Set the value of an attribute of a computer/system",
+            "verbose": "<b>Action Functional workflow</b><ul><li>This action will first find the machine DN(distinguish name) using a filter of Hostname which is provided by the user as a parameter.</li> <li>After that, it will search for the current value of a given attribute name provided as a parameter in action.</li> <li>If a provided attribute value is the same as the current attribute value then attribute value remains as it is. But if the attribute value is different then modify the value of the attribute. </li> </ul>",
             "type": "generic",
             "identifier": "set_system_attribute",
             "read_only": false,

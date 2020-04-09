@@ -14,7 +14,6 @@ from phantom.action_result import ActionResult
 from ldap_consts import *
 
 import ldap
-from ldap.controls import SimplePagedResultsControl
 from datetime import datetime, timedelta
 from struct import unpack
 import codecs
@@ -212,10 +211,9 @@ class LdapConnector(BaseConnector):
         # Also support Domain\username, since that's the format that is ingested into artifacts in some cases
         # However, we strip the domain name before querying for it
         user = self.__domain_slash_reg.sub('', user)
-
         user_filter = '|(sAMAccountName={0})(userPrincipalName={0})(distinguishedName={0})'.format(user)
         search_filter = '(&(objectCategory=person)(objectClass=user)({}))'.format(user_filter)
-
+ 
         # print "Search Filter: " + search_filter
 
         # The attribute that we are interested in
@@ -343,6 +341,7 @@ class LdapConnector(BaseConnector):
         # Create the summary
         for key, value in attributes.iteritems():
             if key not in required_keys:
+                value = UnicodeDammit(value).unicode_markup.encode('utf-8')
                 action_result.update_summary({key: value})
         try:
             if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
@@ -387,7 +386,7 @@ class LdapConnector(BaseConnector):
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Failed to get Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class), e)
+                    "Failed to get Base DN for {0} of class: {1}. Can't proceed {2}".format(obj_name, obj_class, e))
             return (phantom.APP_ERROR, None)
 
         action_result.add_debug_data(r_data)
@@ -416,31 +415,6 @@ class LdapConnector(BaseConnector):
             return (phantom.APP_ERROR, None)
 
         return (phantom.APP_SUCCESS, users_base_dn)
-
-    def _handle_pagination(self, param, dn, action_result, search_filter=None, attr_list=None):
-
-        max_results = param.get('max_results')
-        results = []
-        first_pass = True
-        i = 0
-        page_control = SimplePagedResultsControl(LDAP_PAGINATION_CRITICALITY, LDAP_PAGINATION_PAGE_SIZE, LDAP_PAGINATION_COOKIE)
-
-        while first_pass or page_control.cookie:
-            i += 1
-            first_pass = False
-            try:
-                message_id = self.__ldap_conn.search_ext(dn, ldap.SCOPE_SUBTREE, search_filter, attr_list, serverctrls=[page_control])  # pylint: disable=E1101
-            except Exception as e:
-                return action_result.set_status(phantom.APP_ERROR, "Failed to get data from ldap. Error: {}".format(e))
-
-            result_type, r_data, msgid, serverctrls = self.__ldap_conn.result3(message_id)
-            page_control.cookie = serverctrls[0].cookie
-            results.extend(r_data)
-            if max_results and len(results) >= max_results:
-                results = results[:max_results]
-                break
-
-        return results
 
     def _get_groups_of_users(self, param):
 
@@ -1202,7 +1176,7 @@ class LdapConnector(BaseConnector):
 
         # Now search
         try:
-            r_data = self._handle_pagination(param, dn_to_query, action_result, search_filter=search_filter, attr_list=attr_list)  # pylint: disable=E1101
+            r_data = self.__ldap_conn.search_s(dn_to_query, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             return action_result.set_status(phantom.APP_ERROR, "Failed to get Users", e)
 

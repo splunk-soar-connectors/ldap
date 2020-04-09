@@ -325,7 +325,8 @@
                 },
                 "hostname": {
                     "contains": [
-                        "host name"
+                        "host name",
+                        "ldap distinguished name"
                     ],
                     "description": "Hostname",
                     "data_type": "string",
@@ -347,7 +348,8 @@
                     "data_path": "action_result.parameter.hostname",
                     "data_type": "string",
                     "contains": [
-                        "host name"
+                        "host name",
+                        "ldap distinguished name"
                     ],
                     "example_values": [
                         "test_user3"
@@ -424,7 +426,8 @@
                 },
                 "hostname": {
                     "contains": [
-                        "host name"
+                        "host name",
+                        "ldap distinguished name"
                     ],
                     "description": "Hostname (to set the attribute of)",
                     "data_type": "string",
@@ -470,7 +473,8 @@
                     "data_path": "action_result.parameter.hostname",
                     "data_type": "string",
                     "contains": [
-                        "host name"
+                        "host name",
+                        "ldap distinguished name"
                     ],
                     "example_values": [
                         "test_user1"
@@ -981,7 +985,8 @@
                 },
                 "hostname": {
                     "contains": [
-                        "host name"
+                        "host name",
+                        "ldap distinguished name"
                     ],
                     "description": "Hostname to query the attributes of",
                     "data_type": "string",
@@ -1009,7 +1014,8 @@
                 },
                 {
                     "contains": [
-                        "host name"
+                        "host name",
+                        "ldap distinguished name"
                     ],
                     "data_path": "action_result.parameter.hostname",
                     "example_values": [
@@ -1569,11 +1575,6 @@
                     "order": 0,
                     "data_type": "boolean",
                     "description": "Get All Users (other params are ignored if set)"
-                },
-                "max_results": {
-                    "data_type": "numeric",
-                    "description": "Number of users to fetch",
-                    "order": 4
                 }
             },
             "output": [
@@ -1599,13 +1600,6 @@
                         "container"
                     ],
                     "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.max_results",
-                    "example_values": [
-                        10
-                    ],
-                    "data_type": "numeric"
                 },
                 {
                     "data_path": "action_result.parameter.object_name",

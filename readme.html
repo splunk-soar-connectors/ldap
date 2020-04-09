@@ -12,7 +12,7 @@
           <li>Login into the LDAP Server using Remote Desktop Connection.</li>
           <li>Using the LDAP Server(Remote Desktop), Create a new user or login with the existing user.</li>
           <li>By default new user is a member of Domain Users.</li>
-          <li>To run any action, you should have remote access rights which need to be updated by changing the remote settings in system properties. After adding them, you will receive Remote Desktop access rights which can be verified by accessing the member of the property of the user.</li>
+          <li>To run any action, you should have remote access rights that need to be updated by changing the remote settings in system properties. After adding them, you will receive Remote Desktop access rights which can be verified by accessing the member of the property of the user.</li>
           <li>You can check the test connectivity and run actions that do not update the schema definition of the application.</li>
           <li>For running actions such as 'set system attribute' which updates the LDAP database the user should be a member of the Organizational Manager and Schema Admins which can be added by altering the member of the property of the user.</li>
         </ol>
@@ -52,13 +52,13 @@
               </ul>
           </li>
           <li>
-              <b>Administrator username - </b> This parameter states the username required for authentication. This authentication ensures that User A only has access to the information they need and can’t see the sensitive information of User B unless User A had Administrator priviliges.
+              <b>Administrator username - </b> This parameter states the username required for authentication. This authentication ensures that User A only has access to the information they need and can’t see the sensitive information of User B unless User A had Administrator privileges.
           </li>
           <li>
-              <b>Administrator password - </b> This parameter states the password required for authentication. The credentials entered are sent to the LDAP's server and compared with the users details stored on the LDAP server.
+              <b>Administrator password - </b> This parameter states the password required for authentication. The credentials entered are sent to the LDAP's server and compared with the user's details stored on the LDAP server.
           </li>
           <li>
-              <b>Force use of SSL - </b>  This parameters states whether to forcefully use SSL to establish connection with the LDAP server. If not provided The app will first try to connect to the server using ssl. If a secure connection cannot be made, then a non-ssl connection will be tried, if the config allows.
+              <b>Force use of SSL - </b>  This parameter states whether to forcefully use SSL to establish a connection with the LDAP server. If not provided The app will first try to connect to the server using SSL. If a secure connection cannot be made, then a non-SSL connection will be tried, if the config allows.
           </li>
       </ul>
   </p>
@@ -70,7 +70,7 @@
         <h3><li>Test Connectivity</li></h3>
             <ul>
                 <li> This action will test the connectivity of the Phantom server to the LDAP server by logging into the device using the provided asset configuration parameters.</li>
-                <li> The action validates the provided asset configuration parameters. Based on the response from LDAP Server, appropriate success or failure message will be displayed when the action gets executed.
+                <li> The action validates the provided asset configuration parameters. Based on the response from LDAP Server, an appropriate success or failure message will be displayed when the action gets executed.
                 </li>
             </ul>
         <br>
@@ -121,7 +121,7 @@
                     </ul>
                     </ol>
                 </li>
-                <u>Note:</u>For action workflow refer action description
+                <u>Note:</u>For action workflow refer action description.
                 <br>
                 </ul>
 
@@ -252,7 +252,7 @@
 
               <b><li>Fields</li></b>
               <ul>
-                  <li>This parameter fetches the fields specified. It supports comma-separated list of fields. By default, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values. </li>
+                  <li>This parameter fetches the fields specified. It supports a comma-separated list of fields. By default, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values. </li>
                   <li><b>Examples:</b>
                     <ul>
                       <li>For only specific fields: "samaccountname,useraccountcontrol"</li>
@@ -287,7 +287,7 @@
 
               <b><li>Fields</li></b>
               <ul>
-                  <li>This parameter fetches the fields specified. It supports comma-separated list of fields. By default, operatingsystem, operatingsystemversion, operatingsystemservicepack, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.</li>
+                  <li>This parameter fetches the fields specified. It supports a comma-separated list of fields. By default, operatingsystem, operatingsystemversion, operatingsystemservicepack, useraccountcontrol, badpwdcount, pwdlastset and lastlogon fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.</li>
                   <li><b>Examples:</b>
                     <ul>
                       <li>To fetch all the fields: Fields = "all"</li>
@@ -300,7 +300,7 @@
 
               </ol>
           </li>
-          <u>Note:</u>For action workflow refer action description 
+          <u>Note:</u>For action workflow refer action description.
           <br>
           </ul>
 
@@ -370,12 +370,7 @@
         <ul>
           <li>This action lists the users based on the parameters provided. The max_results parameter specifies the number of users that the action will fetch, if this parameter is not provided, then the action defaults to all values.</li>
           <li>The default value of page size in action and LDAP server is 1000. If you want to check the page size on the LDAP server follow <a href="#" class="view">these</a> steps.</li>
-          <li>Observations of LDAP pagination:
-            <ul>
-              <li>If the page size provided in the LDAP server is more than page size provided in action then the action will fetch the data as provided in the action page-size.</li>
-              <li>If the page size provided in the LDAP server is less than page size provided in action then the action will fetch the data as provided in the LDAP server page-size. For better results, if you want to update the page size then follow <a href="#" class="modify">these</a> steps.</li>
-            </ul>
-          </li>
+        
 
           <br>
           <li><b><u>Action Parameters</u></b>​
@@ -383,7 +378,7 @@
             <ol type="i"><br>
             <b><li>Object Name</li></b>
               <ul>
-                  <li>This parameter specifies the object name for which we need to list the users.If object name is not provided, it will set object name as Users.</li>
+                  <li>This parameter specifies the object name for which we need to list the users. If the object name is not provided, it will set object name as Users.</li>
               </ul>
 
 

@@ -169,7 +169,7 @@ class LdapConnector(BaseConnector):
             return None
 
         if (len(user_dns) > 1):
-            action_result.set_status(phantom.APP_ERROR, "More that one user matched the query. " + LDAP_ERR_USER_DN_FAILED)
+            action_result.set_status(phantom.APP_ERROR, "More than one user matched the query. " + LDAP_ERR_USER_DN_FAILED)
             return None
 
         return user_dns[0]
@@ -213,7 +213,7 @@ class LdapConnector(BaseConnector):
         user = self.__domain_slash_reg.sub('', user)
         user_filter = '|(sAMAccountName={0})(userPrincipalName={0})(distinguishedName={0})'.format(user)
         search_filter = '(&(objectCategory=person)(objectClass=user)({}))'.format(user_filter)
- 
+
         # print "Search Filter: " + search_filter
 
         # The attribute that we are interested in
@@ -410,8 +410,8 @@ class LdapConnector(BaseConnector):
                 return (phantom.APP_ERROR, None)
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed"
-                    .format(obj_name, obj_class), e)
+                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed {2}"
+                    .format(obj_name, obj_class, e))
             return (phantom.APP_ERROR, None)
 
         return (phantom.APP_SUCCESS, users_base_dn)
@@ -459,11 +459,12 @@ class LdapConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED)
 
         try:
-            memberof_array = r_data[0][1]['memberOf']
-            self.debug_print("memberof_array", memberof_array)
+            r_data_dictionary = r_data[0][1]
+            memberof_array = r_data_dictionary.get('memberOf')
+            self.debug_print("memberof_array {0}".format(memberof_array))
             if (memberof_array is None):
                 self.debug_print(LDAP_ERR_USER_GROUP_SEARCH_RETURNED_EMPTY)
-                return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_RETURNED_EMPTY)
+                return action_result.set_status(phantom.APP_SUCCESS, LDAP_ERR_USER_GROUP_SEARCH_RETURNED_EMPTY)
 
             action_result.update_summary({LDAP_JSON_TOTAL_GROUPS: len(memberof_array)})
 
@@ -474,7 +475,7 @@ class LdapConnector(BaseConnector):
                 message += '{0}\n'.format(group)
         except:
             self.debug_print(LDAP_ERR_USER_GROUP_SEARCH_FAILED)
-            action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED)
+            return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED)
 
         return action_result.set_status(phantom.APP_SUCCESS, message)
 
@@ -770,9 +771,16 @@ class LdapConnector(BaseConnector):
         if (phantom.is_fail(action_result.get_status())):
             return action_result.get_status()
 
+        if machine_base_dn is None:
+            return action_result.set_status(phantom.APP_ERROR, "machine_dn not found")
+        try:
+            machine_base_dn = UnicodeDammit(machine_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'machine_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
-        self.debug_print("machine_base_dn", machine_base_dn)
+        self.debug_print("machine_base_dn: {0}".format(machine_base_dn))
 
         ou_name = UnicodeDammit(param[LDAP_JSON_OU]).unicode_markup.encode('utf-8')
 
@@ -786,7 +794,7 @@ class LdapConnector(BaseConnector):
 
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='ou', dn=ou_base_dn)
 
-        self.debug_print("ou_base_dn:", ou_base_dn)
+        self.debug_print("ou_base_dn: {0}".format(ou_base_dn))
 
         # create the newrdn from the machine_base_dn
         newrdn = machine_base_dn[:machine_base_dn.find(',')]
@@ -830,7 +838,7 @@ class LdapConnector(BaseConnector):
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
-        self.debug_print("Working on User: ", UnicodeDammit(username).unicode_markup.encode('utf-8') + "@" + user_base_dn)
+        self.debug_print("Working on User: {0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
         unicode_pass = unicode("\"" + new_passwd + "\"", "iso-8859-1")
         password_value = unicode_pass.encode("utf-16-le")
@@ -989,7 +997,7 @@ class LdapConnector(BaseConnector):
             # Set the resultant account control
             mod_acc_ctrl = curr_acc_ctrl & ~(ACC_DISABLED_CTRL_FLAG)
         else:
-            self.save_progress(LDAP_PROG_USER_STATUS_SAME_AS_REQUIRED, username)
+            self.save_progress(LDAP_PROG_USER_STATUS_SAME_AS_REQUIRED, UnicodeDammit(username).unicode_markup.encode('utf-8'))
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_AD_USER_STATE_SAME)
 
             # print "Set the userAccountControl to 0x%x" % (mod_acc_ctrl)
@@ -1184,7 +1192,7 @@ class LdapConnector(BaseConnector):
 
         # Parse the result
         if not r_data:
-            return self.set_status(phantom.APP_SUCCESS, "No Users found with email addresses")
+            return action_result.set_status(phantom.APP_SUCCESS, "No Users found with email addresses")
 
         self.debug_print("r_data", r_data)
 

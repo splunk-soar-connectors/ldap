@@ -318,7 +318,7 @@ class LdapConnector(BaseConnector):
             valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
-            valid_keys.extend(required_keys)
+            valid_keys = required_keys
 
         bin_string_keys = ['logonhours', 'objectsid', 'objectguid']
 
@@ -687,7 +687,7 @@ class LdapConnector(BaseConnector):
             valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
-            valid_keys.extend(required_keys)
+            valid_keys = required_keys
 
         try:
             for k, v in r_data[0][1].iteritems():

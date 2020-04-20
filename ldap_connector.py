@@ -10,15 +10,14 @@ import phantom.app as phantom
 from phantom.base_connector import BaseConnector
 from phantom.action_result import ActionResult
 
-# THIS Connector imports
 from ldap_consts import *
 
 import ldap
-from datetime import datetime, timedelta
-from struct import unpack
 import codecs
 import re
 import unicodedata
+from datetime import datetime, timedelta
+from struct import unpack
 from bs4 import UnicodeDammit
 
 # The bitmask for setting the user as disabled
@@ -135,7 +134,6 @@ class LdapConnector(BaseConnector):
         # The search filter to query on, uses the machine_name that was given,
         # We currently support multiple formats
         # name, dNSHostName which is fqdn and DN which is distinguishedName i.e. CN=..., DC=...
-        machine_name = UnicodeDammit(machine_name).unicode_markup.encode('utf-8')
         name_filter = '|(name={0})(dNSHostName={0})(distinguishedName={0})'.format(machine_name)
         search_filter = '(&(objectCategory=computer)(objectClass=computer)({}))'.format(name_filter)
 
@@ -200,6 +198,7 @@ class LdapConnector(BaseConnector):
 
         attribute = param.get(LDAP_JSON_ATTRIBUTE)
         user = UnicodeDammit(user).unicode_markup.encode('utf-8')
+
         if (attribute):
             attribute = UnicodeDammit(attribute).unicode_markup.encode('utf-8')
             return self._get_user_dn_with_attribute(attribute, user, action_result)
@@ -318,7 +317,7 @@ class LdapConnector(BaseConnector):
             valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
-            valid_keys = required_keys
+            valid_keys.extend(required_keys)
 
         bin_string_keys = ['logonhours', 'objectsid', 'objectguid']
 
@@ -550,7 +549,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param.get(phantom.APP_JSON_HOSTNAME)
+        machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
         # Query the server for machine_base_dn
@@ -612,11 +611,11 @@ class LdapConnector(BaseConnector):
             # print "useAccountControl: 0x%x" % curr_attrib_value
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_ATTRIB_NOT_FOUND)
 
-        if (str(curr_attrib_value) == str(attrib_val)):
+        if (str(curr_attrib_value) == str(attrib_value)):
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_MSG_ATTRIB_VALUE_SAME)
 
         # The modification list
-        mod_list = [(ldap.MOD_REPLACE, str(attrib_name), str(attrib_val))]  # pylint: disable=E1101
+        mod_list = [(ldap.MOD_REPLACE, str(attrib_name), str(attrib_value))]  # pylint: disable=E1101
         # Now run the modify command on the base_dn
         try:
             self.__ldap_conn.modify_s(machine_base_dn, mod_list)
@@ -639,7 +638,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param.get(phantom.APP_JSON_HOSTNAME)
+        machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
 
@@ -687,7 +686,7 @@ class LdapConnector(BaseConnector):
             valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
-            valid_keys = required_keys
+            valid_keys.extend(required_keys)
 
         try:
             for k, v in r_data[0][1].iteritems():
@@ -762,7 +761,7 @@ class LdapConnector(BaseConnector):
             return self.get_status()
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param.get(phantom.APP_JSON_HOSTNAME)
+        machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
 

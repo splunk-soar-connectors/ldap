@@ -216,6 +216,7 @@
 
             </ol>
           </li>
+          
           <br>
           </ul>
 
@@ -264,6 +265,20 @@
 
               </ol>
           </li>
+          <li>Scenarios:
+            <ul>
+              <li><b>Valid keys: </b>"displayname", "distinguishedname", "lastlogoff", "logoncount", "memberof",
+                "accountexpires", "badpasswordtime", "countrycode", "objectcategory", "objectclass",
+                "objectguid", "objectsid", "primarygroupid", "userprincipalname",
+                "whenchanged", "whencreated", "cn", "codepage", "dscorepropagationdata", "givenname", "instancetype",
+                "name", "samaccountname", "samaccounttype", "sn", "usnchanged", "usncreated", "logonhours", "telephonenumber",
+                "manager", "title", "company", "department", "mail", "streetaddress", "l", "st", "co", "postalcode", "postofficebox"</li>
+              <li><b>Required Keys: </b>"useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"</li>
+              <li>If user have provided "All" in fields parameter then LDAP can fetch all the fields of provided Hostname.</li>
+              <li>If user have provided coma seperated values for fields parameter then LDAP can fetch required keys and provided fields from valid_keys.</li>
+              <li>If user have not provided any value in fields parameter then by default Ldap fetch values of valid keys and required keys.</li>
+            </ul>
+          </li>
           <br>
           </ul>
 
@@ -299,6 +314,19 @@
 
 
               </ol>
+          </li>
+          <li>Scenarios:
+            <ul>
+              <li><b>Valid keys: </b>"name", "dnshostname", "distinguishedname", "objectcategory", "objectclass", "objectguid", "countrycode",
+                "lastlogoff", "lastlogon", "lastlogontimestamp", "localpolicyflags", "logoncount", "netbootguid", "netbootmirrordatafile",
+                "objectsid", "primarygroupid", "displayname", "cn", "pwdlastset", "samaccountname", "samaccounttype", "accountexpires",
+                "badpasswordtime", "badpwdcount", "codepage", "dscorepropagationdata", "instancetype", "iscriticalsystemobject", "ms-ds-creatorsid",
+                "serviceprincipalname", "usnchanged", "usncreated", "useraccountcontrol", "whenchanged", "whencreated" </li>
+              <li><b>Required Keys: </b>"operatingsystem", "operatingsystemversion", "operatingsystemservicepack", "useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"</li>
+              <li>If user have provided "All" in fields parameter then LDAP can fetch all the fields of provided Hostname.</li>
+              <li>If user have provided coma seperated values for fields parameter then LDAP can fetch required keys and provided fields from valid_keys.</li>
+              <li>If user have not provided any value in fields parameter then by default Ldap fetch values of valid keys and required keys.</li>
+            </ul>
           </li>
           <u>Note:</u>For action workflow refer action description.
           <br>

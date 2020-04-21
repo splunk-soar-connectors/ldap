@@ -340,8 +340,12 @@ class LdapConnector(BaseConnector):
         # Create the summary
         for key, value in attributes.iteritems():
             if key not in required_keys:
-                value = UnicodeDammit(value).unicode_markup.encode('utf-8')
-                action_result.update_summary({key: value})
+                try:
+                    value = UnicodeDammit(value).unicode_markup.encode('utf-8')
+                    action_result.update_summary({key: value})
+                except:
+                    self.debug_print("Error occurred while adding the value: {} for the key: {} to the action_result summary".format(value, key))
+                    action_result.update_summary({key: "Unable to add key in summary"})
         try:
             if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
                 action_result.update_summary({LDAP_JSON_STATE: 'Disabled'})
@@ -511,10 +515,12 @@ class LdapConnector(BaseConnector):
 
     def _parse_hex_string(self, in_string):
 
-        # First check if it is a hex string
-        cont_hex_string = str(in_string).replace(' ', '')
-        debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
-        self.debug_print(debug_cont_hex_string)
+        cont_hex_string = UnicodeDammit(in_string).unicode_markup.encode('UTF-8').replace(' ', '')
+
+        # Removing the variable 'debug_cont_hex_string' was not used anywhere in the code
+        # debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
+        # self.debug_print('cont_hex_string', debug_cont_hex_string)
+
         try:
             int(cont_hex_string, 16)
         except ValueError:
@@ -527,6 +533,7 @@ class LdapConnector(BaseConnector):
             bin_str = [chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)]
         except:
             return in_string
+
         # This would dump bin chars, so don't dump
         # self.debug_print('bin_str', bin_str)
 
@@ -712,7 +719,11 @@ class LdapConnector(BaseConnector):
         # Create the summary
         for key, value in attributes.iteritems():
             if key not in required_keys:
-                action_result.update_summary({key: value})
+                try:
+                    action_result.update_summary({key: value})
+                except:
+                    self.debug_print("Error occurred while adding the value: {} for the key: {} to the action_result summary".format(value, key))
+                    action_result.update_summary({key: "Unable to add key in summary"})
 
         if ('operatingsystem' in attributes):
             os_string = '{0}'.format(attributes['operatingsystem'])
@@ -842,7 +853,7 @@ class LdapConnector(BaseConnector):
         unicode_pass = unicode("\"" + new_passwd + "\"", "iso-8859-1")
         password_value = unicode_pass.encode("utf-16-le")
         # The modification list
-        mod_list = [((ldap.MOD_REPLACE, 'unicodePwd', [password_value]))]  # pylint: disable=E1101
+        mod_list = [(ldap.MOD_REPLACE, 'unicodePwd', [password_value])]  # pylint: disable=E1101
 
         try:
             self.__ldap_conn.modify_s(user_base_dn, mod_list)

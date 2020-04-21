@@ -2,7 +2,7 @@
     "appid": "84110F27-6602-4DC8-A6F2-0311B1720BF8",
     "name": "LDAP",
     "description": "This app implements various investigative, contain, correct, and generic actions that can be carried out on an AD server",
-    "publisher": "Phantom",
+    "publisher": "Splunk",
     "type": "directory service",
     "main_module": "ldap_connector.pyc",
     "app_version": "1.2.42",

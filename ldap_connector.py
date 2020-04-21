@@ -49,7 +49,7 @@ class LdapConnector(BaseConnector):
         self.__using_ssl = False
         self.__domain_slash_reg = re.compile(r'.*[\\\/]', re.IGNORECASE)
 
-    def _get_base_dn(self):
+    def _get_base_dn(self, action_result):
 
         self.__base_dn = None
 
@@ -57,20 +57,20 @@ class LdapConnector(BaseConnector):
         try:
             r_data = self.__ldap_conn.search_s("", ldap.SCOPE_BASE, "cn=*", ['defaultNamingContext'])  # pylint: disable=E1101
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, "{0} {1}".format(LDAP_ERR_BASE_DN_FAILED, e))
+            return action_result.set_status(phantom.APP_ERROR, "{0} {1}".format(LDAP_ERR_BASE_DN_FAILED, e))
 
         # Parse the result
         if not r_data:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED)
+            return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED)
 
         try:
             self.debug_print("r_data", r_data)
             self.__base_dn = r_data[0][1]['defaultNamingContext'][0]
             self.debug_print("base_dn", self.__base_dn)
             if (self.__base_dn is None):
-                return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND)
+                return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND)
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND, e)
+            return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND, e)
 
         return phantom.APP_SUCCESS
 
@@ -259,12 +259,11 @@ class LdapConnector(BaseConnector):
 
     def _get_user_attributes(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
-        # create an action_result to represent this item
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
 
         username = param.get(phantom.APP_JSON_USERNAME)
         user_base_dn = None
@@ -421,12 +420,11 @@ class LdapConnector(BaseConnector):
 
     def _get_groups_of_users(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
-        # create an action_result to represent this item
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
 
         username = param.get(phantom.APP_JSON_USERNAME)
 
@@ -551,11 +549,12 @@ class LdapConnector(BaseConnector):
 
     def _set_system_attribute(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
@@ -640,11 +639,12 @@ class LdapConnector(BaseConnector):
 
     def _get_system_attributes(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
@@ -767,11 +767,12 @@ class LdapConnector(BaseConnector):
 
     def _change_system_ou(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
@@ -825,13 +826,14 @@ class LdapConnector(BaseConnector):
 
     def _set_password(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         safe_params = dict(param)
         safe_params.pop('new_password')
         action_result = self.add_action_result(ActionResult(safe_params))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         username = param.get(phantom.APP_JSON_USERNAME)
         new_passwd = UnicodeDammit(param.get(LDAP_JSON_NEW_PASSWORD)).unicode_markup.encode('utf-8')
 
@@ -870,11 +872,12 @@ class LdapConnector(BaseConnector):
 
     def _reset_password(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         username = param.get(phantom.APP_JSON_USERNAME)
         user_base_dn = None
         # Query the server for user_base_dn
@@ -951,11 +954,12 @@ class LdapConnector(BaseConnector):
 
     def _change_user_state(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         username = param.get(phantom.APP_JSON_USERNAME)
 
         user_base_dn = None
@@ -1025,7 +1029,7 @@ class LdapConnector(BaseConnector):
 
         return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_USER_STATE_CHANGED)
 
-    def _connect_to_server(self, ldap_url, config):
+    def _connect_to_server(self, action_result, ldap_url, config):
 
         # Get the server
         ldap_server = config[phantom.APP_JSON_SERVER]
@@ -1054,14 +1058,14 @@ class LdapConnector(BaseConnector):
                 error_code = "Error code unavailable"
                 error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
 
-            return self.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_INITIALIZATION_FAILED, error_code, error_msg))
+            return action_result.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_INITIALIZATION_FAILED, error_code, error_msg))
 
         # handle None return, the docs are not clear what happens in case of failure
         # supposedly the call will always return an object, since that's all
         # it does, create an object, no communication is actually carried out
         # with the ldap server
         if (self.__ldap_conn is None):
-            return self.set_status(phantom.APP_ERROR, "{}. Please check the asset configuration and|or action parameters.".format(LDAP_ERR_INITIALIZATION_FAILED))
+            return action_result.set_status(phantom.APP_ERROR, "{}. Please check the asset configuration and|or action parameters.".format(LDAP_ERR_INITIALIZATION_FAILED))
 
         # set few options, required
         self.__ldap_conn.set_option(ldap.OPT_REFERRALS, 0)  # pylint: disable=E1101
@@ -1070,7 +1074,7 @@ class LdapConnector(BaseConnector):
 
         # Get the base dn, we don't need to be logged into the server to do
         # this query
-        status = self._get_base_dn()
+        status = self._get_base_dn(action_result)
         if (phantom.is_fail(status)):
             # _get_base_dn must have set the status
             return status
@@ -1110,11 +1114,11 @@ class LdapConnector(BaseConnector):
                 error_code = "Error code unavailable"
                 error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
 
-            return self.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_BIND_FAILED, error_code, error_msg))
+            return action_result.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_BIND_FAILED, error_code, error_msg))
 
         return phantom.APP_SUCCESS
 
-    def _connect(self):
+    def _connect(self, action_result):
 
         config = self.get_config()
 
@@ -1127,7 +1131,7 @@ class LdapConnector(BaseConnector):
         # First try with ssl
         self.__using_ssl = True
         ldap_url = 'ldaps://{}'.format(ldap_server)
-        ret_val = self._connect_to_server(ldap_url, config)
+        ret_val = self._connect_to_server(action_result, ldap_url, config)
 
         # Force SSL?
         force_ssl = bool(config[LDAP_JSON_FORCE_SSL])
@@ -1138,23 +1142,24 @@ class LdapConnector(BaseConnector):
                 # Try with non ssl
                 self.save_progress(LDAP_PROG_SSL_FAILED_TRYING_NON_SSL)
                 ldap_url = 'ldap://{}'.format(ldap_server)
-                ret_val = self._connect_to_server(ldap_url, config)
+                ret_val = self._connect_to_server(action_result, ldap_url, config)
             else:
                 self.append_to_message(LDAP_MSG_NON_SSL_NOT_ALLOWED)
 
         if (phantom.is_fail(ret_val)):
-            return self.get_status()
+            return action_result.get_status()
 
         # send success, required else handle_action will not get called
         return phantom.APP_SUCCESS
 
     def _list_users(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         action_result.update_summary({LDAP_JSON_TOTAL_USERS: 0})
 
         all_users = param.get(LDAP_JSON_ALL_USERS)
@@ -1241,13 +1246,13 @@ class LdapConnector(BaseConnector):
 
     def _test_asset_connectivity(self, param):
 
-        if (phantom.is_fail(self._connect())):
-            self.debug_print("connect failed")
-            self.save_progress(LDAP_ERR_CONNECTIVITY_TEST)
-            return self.append_to_message(LDAP_ERR_CONNECTIVITY_TEST)
+        action_result = self.add_action_result(ActionResult(dict(param)))
 
-        self.debug_print("connect passed")
-        return self.set_status_save_progress(phantom.APP_SUCCESS, LDAP_SUCC_CONNECTIVITY_TEST)
+        if phantom.is_fail(self._connect(action_result)):
+            self.save_progress(LDAP_ERR_CONNECTIVITY_TEST)
+            return action_result.get_status()
+
+        return self.set_status(phantom.APP_SUCCESS, LDAP_SUCC_CONNECTIVITY_TEST)
 
     def handle_action(self, param):
         """"""
@@ -1299,8 +1304,8 @@ if __name__ == '__main__':
 
     import sys
     import simplejson as json
-    import pudb
-    pudb.set_trace()
+    # import pudb
+    # pudb.set_trace()
 
     with open(sys.argv[1]) as f:
         in_json = f.read()

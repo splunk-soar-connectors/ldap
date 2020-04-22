@@ -1252,6 +1252,7 @@ class LdapConnector(BaseConnector):
             self.save_progress(LDAP_ERR_CONNECTIVITY_TEST)
             return action_result.get_status()
 
+        self.save_progress(LDAP_SUCC_CONNECTIVITY_TEST)
         return self.set_status(phantom.APP_SUCCESS, LDAP_SUCC_CONNECTIVITY_TEST)
 
     def handle_action(self, param):

@@ -17,6 +17,16 @@
           <li>For running actions such as 'set system attribute' which updates the LDAP database the user should be a member of the Organizational Manager and Schema Admins which can be added by altering the member of the property of the user.</li>
         </ul>
 
+      <p><h2>LDAP Ports Requirements (based on standard guidelines of <a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml" target="_blank">IANA ORG</a>)</h2>
+        <ul>
+          <li>LDAP(service) TCP(transport protocol) - 389</li>
+          <li>LDAP(service) UDP(transport protocol) - 389</li>
+          <li>LDAP(service) TCP(transport protocol) over TLS/SSL (was sldap) - 636</li>
+          <li>LDAP(service) UDP(transport protocol) over TLS/SSL (was sldap) - 636</li>
+          <li>LDAP-ADMIN(service) TCP(transport protocol) admin server port - 3407</li>
+          <li>LDAP-ADMIN(service) UDP(transport protocol) admin server port - 3407</li>
+        </ul>
+
     <p class="modify"><h2>Steps to change Page size</h2>
         <ul>
           <li>Log in the LDAP Server using Remote Desktop Connection.</li>

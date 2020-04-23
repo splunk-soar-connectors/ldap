@@ -337,14 +337,7 @@ class LdapConnector(BaseConnector):
         self.debug_print("Attributes: {0}".format(attributes))
         action_result.add_data(attributes)
         # Create the summary
-        for key, value in attributes.iteritems():
-            if key not in required_keys:
-                try:
-                    value = UnicodeDammit(value).unicode_markup.encode('utf-8')
-                    action_result.update_summary({key: value})
-                except:
-                    self.debug_print("Error occurred while adding the value: {} for the key: {} to the action_result summary".format(value, key))
-                    action_result.update_summary({key: "Unable to add key in summary"})
+
         try:
             if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
                 action_result.update_summary({LDAP_JSON_STATE: 'Disabled'})
@@ -717,13 +710,6 @@ class LdapConnector(BaseConnector):
         action_result.add_data(attributes)
 
         # Create the summary
-        for key, value in attributes.iteritems():
-            if key not in required_keys:
-                try:
-                    action_result.update_summary({key: value})
-                except:
-                    self.debug_print("Error occurred while adding the value: {} for the key: {} to the action_result summary".format(value, key))
-                    action_result.update_summary({key: "Unable to add key in summary"})
 
         if ('operatingsystem' in attributes):
             os_string = '{0}'.format(attributes['operatingsystem'])
@@ -1293,7 +1279,7 @@ class LdapConnector(BaseConnector):
     def handle_exception(self, exception):
         """
         """
-
+ 
         # exception occured
         if (self.__ldap_conn is not None):
             # Unbind

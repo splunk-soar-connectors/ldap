@@ -13,7 +13,6 @@ from phantom.action_result import ActionResult
 from ldap_consts import *
 
 import ldap
-import codecs
 import re
 import unicodedata
 from datetime import datetime, timedelta
@@ -556,9 +555,14 @@ class LdapConnector(BaseConnector):
         if (phantom.is_fail(action_result.get_status())):
             return action_result.get_status()
 
+        try:
+            machine_base_dn = UnicodeDammit(machine_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'machine_base_dn' from the machine name.")
+
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
-        self.debug_print("machine_base_dn", machine_base_dn)
+        self.debug_print("machine_base_dn: {0}".format(machine_base_dn))
 
         attrib_name = UnicodeDammit(param[LDAP_JSON_ATTRIB_NAME]).unicode_markup.encode('utf-8')
 
@@ -699,7 +703,7 @@ class LdapConnector(BaseConnector):
                         values.append(self.create_binary_string(item).strip())
                     else:
                         try:
-                            values.append(codecs.encode(item, 'utf8', 'strict'))
+                            values.append(UnicodeDammit(item).unicode_markup.encode('utf-8'))
                         except:
                             values.append(self.create_binary_string(item).strip())
                 attributes[k] = ";".join(x for x in values)
@@ -1279,7 +1283,7 @@ class LdapConnector(BaseConnector):
     def handle_exception(self, exception):
         """
         """
- 
+
         # exception occured
         if (self.__ldap_conn is not None):
             # Unbind

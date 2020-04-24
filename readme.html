@@ -10,17 +10,17 @@
     <p><h2>Setting up the Environment</h2>
         <ul>
           <li>Login to the LDAP Server using Remote Desktop Connection.</li>
-          <li>Using the LDAP Server (Remote Desktop), create a New User or login with the Existing User.</li>
-          <li>By default, New User is a member of "Domain Users".</li>
-          <li>For accessing the "Member Of " property of the user follows these steps:</li>
+          <li>Using the LDAP Server (Remote Desktop), create a new user or login with the existing user.</li>
+          <li>By default, the new user is a member of "Domain Users".</li>
+          <li>For accessing the "Member Of " property of the user follow the below steps:</li>
           <ul>
             <li>Navigate to the user for which you want to access the "Member Of " property.</li>
-            <li>Now, Right Click on the user and select the "Properties".</li>
+            <li>Now, right-click on the user and select the "Properties".</li>
             <li>In Properties, select the "Member Of " option.</li>
             <li>Now, you can add or remove the groups based on your requirements.</li>
           </ul>
           <li>To run any action, you should have Remote Access Rights that need to be updated by changing the remote settings in system properties.</li>
-          <li>For acquiring Remote Access Rights, the user should follow these steps:</li>
+          <li>For acquiring Remote Access Rights, the user should follow the below steps:</li>
           <ul>
             <li>Navigate to the Control Panel from the Start Menu.</li>
             <li>Navigate to the Advanced System Settings which can be found under System Properties.</li>
@@ -28,7 +28,7 @@
             <li>After adding them, you will receive Remote Desktop Access Rights which can be verified by accessing the "Member Of " property of the user.</li>
           </ul>
           <li>You can check the test connectivity and run actions that do not update the schema definition of the application.</li>
-          <li>For running actions such as 'set system attribute' which updates the LDAP database the user should be a member of "Organizational Manager" and "Schema Admins" which can be added by altering the "Member Of " property of the user.</li>
+          <li>For running actions such as "set system attribute" which updates the LDAP database the user should be a member of "Organizational Manager" and "Schema Admins" which can be added by altering the "Member Of " property of the user.</li>
         </ul>
 
     <p><h2>LDAP Ports Requirements (Based on Standard Guidelines of <a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml" target="_blank">IANA ORG</a>)</h2>
@@ -41,31 +41,33 @@
         <li>LDAP-ADMIN(service) UDP(transport protocol) admin server port - 3407</li>
       </ul>
 
-    <p class="modify"><h2>Steps to change Page Size</h2>
+    <a name="changepagesize"></a>
+    <p><h2>Steps to Change Page Size</h2>
         <ul>
           <li>Login to the LDAP Server using Remote Desktop Connection.</li>
-          <li>Navigate to the Start menu. Then, click or tap the Run search result. In the text box, enter 'ntdsutil'.</li>
-          <li>Now, in the Ntdsutil.exe command prompt, type 'LDAP policies' and press 'Enter'.</li>
-          <li>In the LDAP policy command prompt, type 'connections' and press 'Enter'.</li>
-          <li>In the Server Connection command prompt, enter the 'DNS Name of the server' which you want to connect with.</li>
-          <li>Now, in the Server Connection command prompt, enter 'q' to return to the previous menu.</li>
-          <li>In the LDAP policy command prompt, type 'Set MaxPageSize' to 'x'.For example, enter 'Set MaxPageSize' as 8.</li>
-          <li>To save the changes, type 'Commit Changes' and press 'Enter'.</li>
-          <li>When you finish, type 'q' and then press 'Enter'.</li>
+          <li>Navigate to the "Start" menu. Then, click or tap the "Run" search result. In the text box, enter "ntdsutil".</li>
+          <li>Now, in the Ntdsutil.exe command prompt, type "LDAP policies" and press "Enter".</li>
+          <li>In the LDAP policy command prompt, type "connections" and press "Enter".</li>
+          <li>In the Server Connection command prompt, enter the "DNS Name of the server" which you want to connect with.</li>
+          <li>Now, in the Server Connection command prompt, enter "q" to return to the previous menu.</li>
+          <li>In the LDAP policy command prompt, type "Set MaxPageSize to x". For example, "Set MaxPageSize to 8".</li>
+          <li>To save the changes, type "Commit Changes" and press "Enter".</li>
+          <li>When you finish, type "q" and then press "Enter".</li>
         </ul>
-        <b>Note: </b>Here ' ' are used to denote keywords. They should not be entered with the text.
+        <b>Note: </b>Here " " are used to denote keywords. They should not be entered with the text.
 
-    <p class="view"><h2>Steps to view Page Size</h2>
+    <a name="viewpagesize"></a>
+    <p><h2>Steps to View Page Size</h2>
       <ul>
         <li>Login to the LDAP Server using Remote Desktop Connection.</li>
-        <li>Navigate to the Start menu. Then, click or tap the Run search result. In the text box, enter 'ntdsutil'.</li>
-        <li>Now, in the Ntdsutil.exe command prompt, type 'LDAP policies' and then press 'Enter'.</li>
-        <li>In the LDAP policy command prompt, type 'connections' and then press 'Enter'.</li>
-        <li>In the Server Connection command prompt, enter the 'DNS Name of the server' which you want to connect with.</li>
-        <li>Now, in the Server Connection command prompt, enter 'q' to return to the previous menu.</li>
-        <li>In the LDAP policy command prompt, type 'Show Values'.</li>
+        <li>Navigate to the "Start" menu. Then, click or tap the "Run" search result. In the text box, enter "ntdsutil".</li>
+        <li>Now, in the Ntdsutil.exe command prompt, type "LDAP policies" and then press "Enter".</li>
+        <li>In the LDAP policy command prompt, type "connections" and then press "Enter".</li>
+        <li>In the Server Connection command prompt, enter the "DNS Name of the server" which you want to connect with.</li>
+        <li>Now, in the Server Connection command prompt, enter "q" to return to the previous menu.</li>
+        <li>In the LDAP policy command prompt, type "Show Values".</li>
       </ul>
-      <b>Note: </b>Here ' ' are used to denote keywords. They should not be entered with the text.
+      <b>Note: </b>Here " " are used to denote keywords. They should not be entered with the text.
 
     <p><h2>Asset Configuration Parameters</h2>
       The asset configuration parameters affect "Test Connectivity" and all the other actions of the application. Below are the explanation and usage of all those parameters.
@@ -81,7 +83,7 @@
               <b>Administrator username - </b> This parameter states the username required for authentication. This authentication ensures that User A only has access to the information they need and can’t see the sensitive information of User B unless User A has Administrator privileges.
           </li>
           <li>
-              <b>Administrator password - </b> This parameter states the password required for authentication. The credentials entered are sent to the LDAP's server and compared with the user's details stored on the LDAP server.
+              <b>Administrator password - </b> This parameter states the password required for authentication. The credentials entered are sent to the LDAP server and compared with the user's details stored on the LDAP server.
           </li>
           <li>
               <b>Force use of SSL - </b>  This parameter states whether to forcefully use SSL to establish a connection with the LDAP server. If not provided, the app will first try to connect to the server using SSL. If a secure connection cannot be made, then a non-SSL connection will be tried, if the config allows.
@@ -105,7 +107,7 @@
                     <b><li>Username</li></b>
                     <ul>
                         <li>This parameter specifies the username to disable. It is a mandatory action parameter.</li>
-                        <li><b>Examples:</b>
+                        <li><b>Examples</b>
                           <ul>
                             <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
                             <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
@@ -130,7 +132,7 @@
                     <b><li>Username</li></b>
                     <ul>
                         <li>This parameter specifies the username to enable. It is a mandatory action parameter.</li>
-                        <li><b>Examples:</b>
+                        <li><b>Examples</b>
                           <ul>
                             <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
                             <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
@@ -154,7 +156,7 @@
                   <b><li>Username</li></b>
                   <ul>
                       <li>This parameter specifies the username to fetch the groups it belongs to. It is a mandatory action parameter.</li>
-                      <li><b>Examples:</b>
+                      <li><b>Examples</b>
                         <ul>
                           <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
                           <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
@@ -178,7 +180,7 @@
                   <b><li>Hostname</li></b>
                   <ul>
                       <li>This parameter specifies the hostname. It is a mandatory action parameter.</li>
-                      <li><b>Examples:</b>
+                      <li><b>Examples</b>
                         <ul>
                           <li>Hostname format (e.g. test_computerdata1 (<i>name</i> in AD nomenclature))</li>
                         </ul>
@@ -188,7 +190,7 @@
                   <b><li>OU</li></b>
                   <ul>
                       <li>This parameter is used to change the organizational unit(OU) of the system. It is a mandatory action parameter.</li>
-                      <li><b>Examples:</b>
+                      <li><b>Examples</b>
                         <ul>
                           <li>Distinguished name format, for example, OU=ShawOU2,OU=ShawOU,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
                         </ul>
@@ -207,7 +209,7 @@
                   <b><li>Hostname</li></b>
                   <ul>
                       <li>This parameter specifies the hostname for which we need to set the attribute. It is a mandatory action parameter.</li>
-                      <li><b>Examples:</b>
+                      <li><b>Examples</b>
                         <ul>
                           <li>Hostname format (e.g. test_computerdata1 (<i>name</i> in AD nomenclature))</li>
                         </ul>
@@ -216,7 +218,7 @@
                   <b><li>Attribute Name and Attribute Value</li></b>
                   <ul>
                       <li>These are the required parameters. Attribute Name specifies the name of the attribute which needs to be modified. Attribute Value specifies the value which needs to be set. </li>
-                      <br><li><b>Examples:</b>
+                      <br><li><b>Examples</b>
                         <ul>
                           <li>
                               To set the country code: Attribute Name: "countrycode" and Attribute Value: 79
@@ -238,7 +240,7 @@
                   <b><li>Username</li></b>
                     <ul>
                         <li>This parameter specifies the username or attribute value which needs to be matched. It is a mandatory action parameter.</li>
-                        <li><b>Examples:</b>
+                        <li><b>Examples</b>
                           <ul>
                             <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
                             <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
@@ -253,7 +255,7 @@
                         <li>This parameter specifies the attribute name to match.</li>
                         <li><b>Examples</b>
                           <ul>
-                            <li>: If we want to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error.</li>
+                            <li>If we want to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error.</li>
                           </ul>
                         </li>
                     </ul>
@@ -263,7 +265,7 @@
                         <li>This parameter fetches the fields specified. It supports a comma-separated list of fields. By default, "useraccountcontrol", "badpwdcount", "pwdlastset", and "lastlogon" fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values. </li>
                         <li><b>Examples</b>
                           <ul>
-                            <li>: For fetching only specific fields: "samaccountname,useraccountcontrol"</li>
+                            <li>For fetching only specific fields: "samaccountname,useraccountcontrol"</li>
                           </ul>
                         </li>
                     </ul>
@@ -275,14 +277,14 @@
               <li><b><u>Scenarios</u></b>
                 <ul>
                 <br>
-                  <li><b>Valid keys- </b>"displayname", "distinguishedname", "lastlogoff", "logoncount", "memberof",
+                  <li><b>Valid keys - </b>"displayname", "distinguishedname", "lastlogoff", "logoncount", "memberof",
                     "accountexpires", "badpasswordtime", "countrycode", "objectcategory", "objectclass",
                     "objectguid", "objectsid", "primarygroupid", "userprincipalname",
                     "whenchanged", "whencreated", "cn", "codepage", "dscorepropagationdata", "givenname", "instancetype",
                     "name", "samaccountname", "samaccounttype", "sn", "usnchanged", "usncreated", "logonhours", "telephonenumber",
                     "manager", "title", "company", "department", "mail", "streetaddress", "l", "st", "co", "postalcode", "postofficebox"</li>
-                  <li><b>Required Keys- </b>"useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"</li>
-                  <li>If the user has provided "All" in fields parameter, LDAP will fetch all the fields for the provided hostname.</li>
+                  <li><b>Required Keys - </b>"useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"</li>
+                  <li>If the user has provided "all" in fields parameter, LDAP will fetch all the fields for the provided hostname.</li>
                   <li>If the user has provided comma-separated values for fields parameter, LDAP will fetch the required keys and provided fields after validating it from valid keys.</li>
                   <li>If the user has not provided any value in the fields parameter, then by default LDAP will fetch the values of valid keys and the required keys.</li>
                 </ul>
@@ -300,7 +302,7 @@
                         <li>This parameter specifies the hostname for which we need to get the attributes. It is a mandatory action parameter.</li>
                         <li><b>Example</b>
                           <ul>
-                            <li>: Hostname format (e.g. test_computerdata1 (<i>name</i> in AD nomenclature))</li>
+                            <li>Hostname format (e.g. test_computerdata1 (<i>name</i> in AD nomenclature))</li>
                           </ul>
                         </li>
                     </ul>
@@ -308,7 +310,7 @@
                   <b><li>Fields</li></b>
                     <ul>
                         <li>This parameter fetches the fields specified. It supports a comma-separated list of fields. By default, "operatingsystem", "operatingsystemversion", "operatingsystemservicepack", "useraccountcontrol", "badpwdcount", "pwdlastset", and "lastlogon" fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values.</li>
-                        <li><b>Examples:</b>
+                        <li><b>Examples</b>
                           <ul>
                             <li>To fetch all the fields: Fields = "all"</li>
                             <li>For fetching only specific fields: Fields = "samaccountname,displayname" </li>
@@ -320,13 +322,13 @@
               <li><b><u>Scenarios</u></b>
                 <ul>
                 <br>
-                  <li><b>Valid keys- </b>"name", "dnshostname", "distinguishedname", "objectcategory", "objectclass", "objectguid", "countrycode",
+                  <li><b>Valid keys - </b>"name", "dnshostname", "distinguishedname", "objectcategory", "objectclass", "objectguid", "countrycode",
                     "lastlogoff", "lastlogon", "lastlogontimestamp", "localpolicyflags", "logoncount", "netbootguid", "netbootmirrordatafile",
                     "objectsid", "primarygroupid", "displayname", "cn", "pwdlastset", "samaccountname", "samaccounttype", "accountexpires",
                     "badpasswordtime", "badpwdcount", "codepage", "dscorepropagationdata", "instancetype", "iscriticalsystemobject", "ms-ds-creatorsid",
                     "serviceprincipalname", "usnchanged", "usncreated", "useraccountcontrol", "whenchanged", "whencreated" </li>
-                  <li><b>Required Keys- </b>"operatingsystem", "operatingsystemversion", "operatingsystemservicepack", "useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"</li>
-                  <li>If the user has provided "All" in fields parameter, LDAP will fetch all the fields for the provided hostname.</li>
+                  <li><b>Required Keys - </b>"operatingsystem", "operatingsystemversion", "operatingsystemservicepack", "useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"</li>
+                  <li>If the user has provided "all" in fields parameter, LDAP will fetch all the fields for the provided hostname.</li>
                   <li>If the user has provided comma-separated values for fields parameter, LDAP will fetch the required keys and provided fields after validating it from valid keys.</li>
                   <li>If the user has not provided any value in the fields parameter, then by default LDAP will fetch the values of valid keys and the required keys.</li>
                 </ul>
@@ -346,7 +348,7 @@
                   <b><li>Username</li></b>
                     <ul>
                         <li>This parameter specifies the username for which we need to change the password. It is a mandatory action parameter.</li>
-                        <li><b>Examples:</b>
+                        <li><b>Examples</b>
                           <ul>
                             <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
                             <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
@@ -360,7 +362,7 @@
                     <ul>
                         <li>This parameter is used to set the new password. It is a mandatory action parameter.</li>
                         <li><b>Example</b>
-                          <ul><li>: New Password: abc@123</li></ul>
+                          <ul><li>New Password: abc@123</li></ul>
                         </li>
                     </ul>
                 </ol>
@@ -377,7 +379,7 @@
                   <b><li>Username</li></b>
                     <ul>
                         <li>This parameter specifies the username for which we need to enforce change password on next login. It is a mandatory action parameter.</li>
-                        <li><b>Examples:</b>
+                        <li><b>Examples</b>
                           <ul>
                             <li>Simple user name format, for example, test_user (<i>sAMAccountName</i> in AD nomenclature)</li>
                             <li>Email address, for example, test_user@corp.contoso.com (<i>userPrincipalName</i>)</li>
@@ -396,8 +398,8 @@
           <p><h3><li>Get Users</li></h3>
             <ul>
               <li>This action lists the users based on the parameters provided. The max_results parameter specifies the number of users that the action will fetch. If this parameter is not provided, then the action defaults to "All" values.</li>
-              <li>The default value of page size in action and LDAP server is 1000. If you want to check the page size on the LDAP server follow <a href="#" class="view">these</a> steps.</li>
-              <li>LDAP will throw an error if the page-size in the LDAP server is less than the total users.</li>
+              <li>The default value of page size in action and LDAP server is 1000. If you want to check the page size on the LDAP server follow <a href="#viewpagesize">these</a> steps.</li>
+              <li>LDAP will throw an error if the page-size in the LDAP server is less than the total users. If you want to change the page size on the LDAP server follow <a href="#changepagesize">these</a> steps.</li>
               <br>
               <li><b><u>Action Parameters</u></b>​
                 <ol type="i"><br>
@@ -411,7 +413,7 @@
                     <ul>
                         <li>This parameter specifies the object class for which we need to list the users. If the object class is not provided, it will set the object class as the container.</li>
                         <li><b>Examples</b>
-                          <ul><li>: Object Class is a value list. Hence, the user has to choose from "container", "organizational unit", or "group".</li></ul>
+                          <ul><li>Object Class is a value list. Hence, the user has to choose from "container", "organizational unit", or "group".</li></ul>
                         </li>
                     </ul>
 

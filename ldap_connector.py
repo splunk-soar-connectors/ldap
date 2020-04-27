@@ -1295,8 +1295,8 @@ if __name__ == '__main__':
 
     import sys
     import simplejson as json
-    # import pudb
-    # pudb.set_trace()
+    import pudb
+    pudb.set_trace()
 
     with open(sys.argv[1]) as f:
         in_json = f.read()

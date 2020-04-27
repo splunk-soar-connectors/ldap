@@ -180,7 +180,7 @@
                   <b><li>Hostname</li></b>
                   <ul>
                       <li>This parameter specifies the hostname. It is a mandatory action parameter.</li>
-                      <li><b>Examples</b>
+                      <li><b>Example</b>
                         <ul>
                           <li>Hostname format (e.g. test_computerdata1 (<i>name</i> in AD nomenclature))</li>
                         </ul>
@@ -190,7 +190,7 @@
                   <b><li>OU</li></b>
                   <ul>
                       <li>This parameter is used to change the organizational unit(OU) of the system. It is a mandatory action parameter.</li>
-                      <li><b>Examples</b>
+                      <li><b>Example</b>
                         <ul>
                           <li>Distinguished name format, for example, OU=ShawOU2,OU=ShawOU,DC=corp,DC=contoso,DC=com (<i>distinguishedName</i>)</li>
                         </ul>
@@ -209,7 +209,7 @@
                   <b><li>Hostname</li></b>
                   <ul>
                       <li>This parameter specifies the hostname for which we need to set the attribute. It is a mandatory action parameter.</li>
-                      <li><b>Examples</b>
+                      <li><b>Example</b>
                         <ul>
                           <li>Hostname format (e.g. test_computerdata1 (<i>name</i> in AD nomenclature))</li>
                         </ul>
@@ -218,7 +218,7 @@
                   <b><li>Attribute Name and Attribute Value</li></b>
                   <ul>
                       <li>These are the required parameters. Attribute Name specifies the name of the attribute which needs to be modified. Attribute Value specifies the value which needs to be set. </li>
-                      <br><li><b>Examples</b>
+                      <br><li><b>Example</b>
                         <ul>
                           <li>
                               To set the country code: Attribute Name: "countrycode" and Attribute Value: 79
@@ -253,7 +253,7 @@
                   <b><li>Attribute</li></b>
                     <ul>
                         <li>This parameter specifies the attribute name to match.</li>
-                        <li><b>Examples</b>
+                        <li><b>Example</b>
                           <ul>
                             <li>If we want to match a user with an <i>employeeID</i> of 10001, set the <b>attribute</b> parameter as <b>employeeID</b> and the <b>username</b> parameter as <b>10001</b>. An error is reported if the attribute (employeeID in this example) is not found on the LDAP server. More than one user matching is also reported as an error.</li>
                           </ul>
@@ -263,7 +263,7 @@
                   <b><li>Fields</li></b>
                     <ul>
                         <li>This parameter fetches the fields specified. It supports a comma-separated list of fields. By default, "useraccountcontrol", "badpwdcount", "pwdlastset", and "lastlogon" fields are fetched along with the mentioned fields. If one or more or all the mentioned fields are invalid, the action will still pass and will display the default fields' values. </li>
-                        <li><b>Examples</b>
+                        <li><b>Example</b>
                           <ul>
                             <li>For fetching only specific fields: "samaccountname,useraccountcontrol"</li>
                           </ul>
@@ -412,7 +412,7 @@
                   <b><li>Object Class</li></b>
                     <ul>
                         <li>This parameter specifies the object class for which we need to list the users. If the object class is not provided, it will set the object class as the container.</li>
-                        <li><b>Examples</b>
+                        <li><b>Example</b>
                           <ul><li>Object Class is a value list. Hence, the user has to choose from "container", "organizational unit", or "group".</li></ul>
                         </li>
                     </ul>

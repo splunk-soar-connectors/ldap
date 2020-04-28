@@ -1,5 +1,5 @@
 # File: ldap_connector.py
-# Copyright (c) 2014-2018 Splunk Inc.
+# Copyright (c) 2016-2020 Splunk Inc.
 #
 # SPLUNK CONFIDENTIAL - Use or disclosure of this material in whole or in part
 # without a valid written license from Splunk Inc. is PROHIBITED.
@@ -10,15 +10,14 @@ import phantom.app as phantom
 from phantom.base_connector import BaseConnector
 from phantom.action_result import ActionResult
 
-# THIS Connector imports
 from ldap_consts import *
 
 import ldap
-from datetime import datetime, timedelta
-from struct import unpack
-import codecs
 import re
 import unicodedata
+from datetime import datetime, timedelta
+from struct import unpack
+from bs4 import UnicodeDammit
 
 # The bitmask for setting the user as disabled
 ACC_DISABLED_CTRL_FLAG = 0x0002
@@ -49,7 +48,7 @@ class LdapConnector(BaseConnector):
         self.__using_ssl = False
         self.__domain_slash_reg = re.compile(r'.*[\\\/]', re.IGNORECASE)
 
-    def _get_base_dn(self):
+    def _get_base_dn(self, action_result):
 
         self.__base_dn = None
 
@@ -57,20 +56,20 @@ class LdapConnector(BaseConnector):
         try:
             r_data = self.__ldap_conn.search_s("", ldap.SCOPE_BASE, "cn=*", ['defaultNamingContext'])  # pylint: disable=E1101
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED, e)
+            return action_result.set_status(phantom.APP_ERROR, "{0} {1}".format(LDAP_ERR_BASE_DN_FAILED, e))
 
         # Parse the result
         if not r_data:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED)
+            return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_FAILED)
 
         try:
             self.debug_print("r_data", r_data)
             self.__base_dn = r_data[0][1]['defaultNamingContext'][0]
             self.debug_print("base_dn", self.__base_dn)
             if (self.__base_dn is None):
-                return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND)
+                return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND)
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND, e)
+            return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_BASE_DN_NOT_FOUND, e)
 
         return phantom.APP_SUCCESS
 
@@ -167,7 +166,7 @@ class LdapConnector(BaseConnector):
             return None
 
         if (len(user_dns) > 1):
-            action_result.set_status(phantom.APP_ERROR, "More that one user matched the query. " + LDAP_ERR_USER_DN_FAILED)
+            action_result.set_status(phantom.APP_ERROR, "More than one user matched the query. " + LDAP_ERR_USER_DN_FAILED)
             return None
 
         return user_dns[0]
@@ -197,7 +196,10 @@ class LdapConnector(BaseConnector):
     def _get_user_dn(self, user, param, action_result):
 
         attribute = param.get(LDAP_JSON_ATTRIBUTE)
+        user = UnicodeDammit(user).unicode_markup.encode('utf-8')
+
         if (attribute):
+            attribute = UnicodeDammit(attribute).unicode_markup.encode('utf-8')
             return self._get_user_dn_with_attribute(attribute, user, action_result)
 
         # The search filter to query on, uses the user that was given,
@@ -207,7 +209,6 @@ class LdapConnector(BaseConnector):
         # Also support Domain\username, since that's the format that is ingested into artifacts in some cases
         # However, we strip the domain name before querying for it
         user = self.__domain_slash_reg.sub('', user)
-
         user_filter = '|(sAMAccountName={0})(userPrincipalName={0})(distinguishedName={0})'.format(user)
         search_filter = '(&(objectCategory=person)(objectClass=user)({}))'.format(user_filter)
 
@@ -257,26 +258,28 @@ class LdapConnector(BaseConnector):
 
     def _get_user_attributes(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
-        # create an action_result to represent this item
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        username = param.get(phantom.APP_JSON_USERNAME)
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
 
+        username = param.get(phantom.APP_JSON_USERNAME)
         user_base_dn = None
         # Query the server for user_base_dn
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
-        self.debug_print("Working on User: ", username.decode('utf-8') + "@" + user_base_dn.decode('utf-8'))
+        self.debug_print("Working on User:{0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
         user_base_dn = u''.join(user_base_dn.decode('utf-8'))
-
         # The attribute list to query
         try:
             r_data = self.__ldap_conn.search_s(user_base_dn, ldap.SCOPE_BASE, "cn=*")  # pylint: disable=E1101
@@ -304,12 +307,12 @@ class LdapConnector(BaseConnector):
         "manager", "title", "company", "department", "mail", "streetaddress", "l", "st", "co", "postalcode", "postofficebox"]
 
         required_keys = ["useraccountcontrol", "badpwdcount", "pwdlastset", "lastlogon"]
-
         user_specified_fields = param.get('fields')
+
         if user_specified_fields == 'all':
             valid_keys = []
         elif user_specified_fields:
-            valid_keys = [x.strip() for x in str(user_specified_fields).lower().split(',')]
+            valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
             valid_keys.extend(required_keys)
@@ -333,6 +336,7 @@ class LdapConnector(BaseConnector):
         self.debug_print("Attributes: {0}".format(attributes))
         action_result.add_data(attributes)
         # Create the summary
+
         try:
             if ((int(attributes['useraccountcontrol']) & ACC_DISABLED_CTRL_FLAG) > 0):
                 action_result.update_summary({LDAP_JSON_STATE: 'Disabled'})
@@ -368,8 +372,6 @@ class LdapConnector(BaseConnector):
 
         search_filter = '(&(objectClass={0})(name={1}))'.format(obj_class, obj_name)
 
-        # print "Search Filter: " + search_filter
-
         # The attribute that we are interested in
         attr_list = ['dn']
 
@@ -378,7 +380,7 @@ class LdapConnector(BaseConnector):
             r_data = self.__ldap_conn.search_s(self.__base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list)  # pylint: disable=E1101
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Failed to get Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class), e)
+                    "Failed to get Base DN for {0} of class: {1}. Can't proceed {2}".format(obj_name, obj_class, e))
             return (phantom.APP_ERROR, None)
 
         action_result.add_debug_data(r_data)
@@ -392,25 +394,29 @@ class LdapConnector(BaseConnector):
         try:
             self.debug_print("r_data", r_data)
             users_base_dn = r_data[0][0]
-            self.debug_print("users_base_dn", users_base_dn)
+            try:
+                self.debug_print("users_base_dn : {}".format(UnicodeDammit(users_base_dn).unicode_markup.encode('utf-8')))
+            except:
+                self.debug_print("Error occured while logging the data of user_base_dn")
             if (users_base_dn is None):
-                action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'".format(obj_name, obj_class))
+                action_result.set_status(phantom.APP_ERROR, "Base DN not found, seems like there is no object named '{0}' of class '{1}'"
+                .format(obj_name, obj_class))
                 return (phantom.APP_ERROR, None)
         except Exception as e:
             action_result.set_status(phantom.APP_ERROR,
-                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed".format(obj_name, obj_class), e)
+                    "Error parsing result while querying for Base DN for {0} of class: {1}. Can't proceed {2}"
+                    .format(obj_name, obj_class, e))
             return (phantom.APP_ERROR, None)
 
         return (phantom.APP_SUCCESS, users_base_dn)
 
     def _get_groups_of_users(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
-        # create an action_result to represent this item
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
 
         username = param.get(phantom.APP_JSON_USERNAME)
 
@@ -420,9 +426,14 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
-        self.debug_print("Working on User: ", username + "@" + user_base_dn)
+        self.debug_print("Working on User: {0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
         # The attribute list to query
         attr_list = ['memberOf']
@@ -441,11 +452,12 @@ class LdapConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED)
 
         try:
-            memberof_array = r_data[0][1]['memberOf']
-            self.debug_print("memberof_array", memberof_array)
+            r_data_dictionary = r_data[0][1]
+            memberof_array = r_data_dictionary.get('memberOf')
+            self.debug_print("memberof_array {0}".format(memberof_array))
             if (memberof_array is None):
                 self.debug_print(LDAP_ERR_USER_GROUP_SEARCH_RETURNED_EMPTY)
-                return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_RETURNED_EMPTY)
+                return action_result.set_status(phantom.APP_SUCCESS, LDAP_ERR_USER_GROUP_SEARCH_RETURNED_EMPTY)
 
             action_result.update_summary({LDAP_JSON_TOTAL_GROUPS: len(memberof_array)})
 
@@ -456,7 +468,7 @@ class LdapConnector(BaseConnector):
                 message += '{0}\n'.format(group)
         except:
             self.debug_print(LDAP_ERR_USER_GROUP_SEARCH_FAILED)
-            action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED)
+            return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED)
 
         return action_result.set_status(phantom.APP_SUCCESS, message)
 
@@ -493,11 +505,11 @@ class LdapConnector(BaseConnector):
 
     def _parse_hex_string(self, in_string):
 
-        # First check if it is a hex string
-        cont_hex_string = in_string.replace(' ', '')
+        cont_hex_string = UnicodeDammit(in_string).unicode_markup.encode('UTF-8').replace(' ', '')
 
-        debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
-        self.debug_print('cont_hex_string', debug_cont_hex_string)
+        # Removing the variable 'debug_cont_hex_string' was not used anywhere in the code
+        # debug_cont_hex_string = unicodedata.normalize('NFKD', unicode(cont_hex_string, 'utf-8')).encode('ascii', 'ignore')
+        # self.debug_print('cont_hex_string', debug_cont_hex_string)
 
         try:
             int(cont_hex_string, 16)
@@ -507,7 +519,10 @@ class LdapConnector(BaseConnector):
         # Need to convert it to an escaped binary string,
         # First create a list of 2 chars hex value, each of which gets converted to a int
         # the chr of which is added to a string
-        bin_str = ''.join([chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)])
+        try:
+            bin_str = [chr(int(cont_hex_string[i:i + 2], 16)) for i in range(0, len(cont_hex_string), 2)]
+        except:
+            return in_string
 
         # This would dump bin chars, so don't dump
         # self.debug_print('bin_str', bin_str)
@@ -526,32 +541,42 @@ class LdapConnector(BaseConnector):
 
     def _set_system_attribute(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param[phantom.APP_JSON_HOSTNAME]
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
+        machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
-
         # Query the server for machine_base_dn
         machine_base_dn = self._get_machine_dn(machine_name, action_result)
         if (phantom.is_fail(action_result.get_status())):
             return action_result.get_status()
 
+        try:
+            machine_base_dn = UnicodeDammit(machine_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'machine_base_dn' from the machine name.")
+
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
-        self.debug_print("machine_base_dn", machine_base_dn)
+        self.debug_print("machine_base_dn: {0}".format(machine_base_dn))
 
-        attrib_name = param[LDAP_JSON_ATTRIB_NAME]
+        attrib_name = UnicodeDammit(param[LDAP_JSON_ATTRIB_NAME]).unicode_markup.encode('utf-8')
 
         attrib_value = param[LDAP_JSON_ATTRIB_VALUE]
-
         # We could get the value as a hex string, that's what is expected for GUID like attributes
         attrib_value = self._parse_hex_string(attrib_value)
-
-        attrib_value = self._handle_bool_string(attrib_value)
+        # Decoded attribute_value which is encoded with base 16 and than converted to character
+        attrib_val = ''
+        if(isinstance(attrib_value, list)):
+            for i in attrib_value:
+                attrib_val += hex(unpack('B', i)[0]).split('x')[-1]
+        else:
+            attrib_val = attrib_value
+        attrib_value = self._handle_bool_string(attrib_val)
 
         # get the current value of the variable
         # The attribute list to query
@@ -594,7 +619,6 @@ class LdapConnector(BaseConnector):
 
         # The modification list
         mod_list = [(ldap.MOD_REPLACE, str(attrib_name), str(attrib_value))]  # pylint: disable=E1101
-
         # Now run the modify command on the base_dn
         try:
             self.__ldap_conn.modify_s(machine_base_dn, mod_list)
@@ -612,12 +636,13 @@ class LdapConnector(BaseConnector):
 
     def _get_system_attributes(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param[phantom.APP_JSON_HOSTNAME]
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
+        machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
 
@@ -662,7 +687,7 @@ class LdapConnector(BaseConnector):
         if user_specified_fields == 'all':
             valid_keys = []
         elif user_specified_fields:
-            valid_keys = [x.strip() for x in str(user_specified_fields).lower().split(',')]
+            valid_keys = [UnicodeDammit(x.strip().lower()).unicode_markup.encode('utf-8') for x in user_specified_fields.split(',')]
             valid_keys.extend(required_keys)
         else:
             valid_keys.extend(required_keys)
@@ -678,7 +703,7 @@ class LdapConnector(BaseConnector):
                         values.append(self.create_binary_string(item).strip())
                     else:
                         try:
-                            values.append(codecs.encode(item, 'utf8', 'strict'))
+                            values.append(UnicodeDammit(item).unicode_markup.encode('utf-8'))
                         except:
                             values.append(self.create_binary_string(item).strip())
                 attributes[k] = ";".join(x for x in values)
@@ -687,7 +712,9 @@ class LdapConnector(BaseConnector):
 
         self.debug_print("Attributes", attributes)
         action_result.add_data(attributes)
+
         # Create the summary
+
         if ('operatingsystem' in attributes):
             os_string = '{0}'.format(attributes['operatingsystem'])
             if ('operatingsystemversion' in attributes):
@@ -730,12 +757,13 @@ class LdapConnector(BaseConnector):
 
     def _change_system_ou(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
-        machine_name = param[phantom.APP_JSON_HOSTNAME]
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
+        machine_name = UnicodeDammit(param[phantom.APP_JSON_HOSTNAME]).unicode_markup.encode('UTF-8')
 
         machine_base_dn = None
 
@@ -744,11 +772,18 @@ class LdapConnector(BaseConnector):
         if (phantom.is_fail(action_result.get_status())):
             return action_result.get_status()
 
+        if machine_base_dn is None:
+            return action_result.set_status(phantom.APP_ERROR, "machine_dn not found")
+        try:
+            machine_base_dn = UnicodeDammit(machine_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'machine_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
-        self.debug_print("machine_base_dn", machine_base_dn)
+        self.debug_print("machine_base_dn: {0}".format(machine_base_dn))
 
-        ou_name = param[LDAP_JSON_OU]
+        ou_name = UnicodeDammit(param[LDAP_JSON_OU]).unicode_markup.encode('utf-8')
 
         ou_base_dn = ou_name
 
@@ -760,7 +795,7 @@ class LdapConnector(BaseConnector):
 
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='ou', dn=ou_base_dn)
 
-        self.debug_print("ou_base_dn:", ou_base_dn)
+        self.debug_print("ou_base_dn: {0}".format(ou_base_dn))
 
         # create the newrdn from the machine_base_dn
         newrdn = machine_base_dn[:machine_base_dn.find(',')]
@@ -781,15 +816,16 @@ class LdapConnector(BaseConnector):
 
     def _set_password(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         safe_params = dict(param)
         safe_params.pop('new_password')
         action_result = self.add_action_result(ActionResult(safe_params))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         username = param.get(phantom.APP_JSON_USERNAME)
-        new_passwd = param.get(LDAP_JSON_NEW_PASSWORD)
+        new_passwd = UnicodeDammit(param.get(LDAP_JSON_NEW_PASSWORD)).unicode_markup.encode('utf-8')
 
         user_base_dn = None
         # Query the server for user_base_dn
@@ -797,14 +833,19 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
-        self.debug_print("Working on User: ", username + "@" + user_base_dn)
+        self.debug_print("Working on User: {0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
-        password_value = ('"{0}"'.format(new_passwd)).encode("utf-16-le")
-
+        unicode_pass = unicode("\"" + new_passwd + "\"", "iso-8859-1")
+        password_value = unicode_pass.encode("utf-16-le")
         # The modification list
-        mod_list = [((ldap.MOD_REPLACE, 'unicodePwd', [password_value]))]  # pylint: disable=E1101
+        mod_list = [(ldap.MOD_REPLACE, 'unicodePwd', [password_value])]  # pylint: disable=E1101
 
         try:
             self.__ldap_conn.modify_s(user_base_dn, mod_list)
@@ -821,22 +862,27 @@ class LdapConnector(BaseConnector):
 
     def _reset_password(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
-        username = param[phantom.APP_JSON_USERNAME]
 
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
+        username = param.get(phantom.APP_JSON_USERNAME)
         user_base_dn = None
         # Query the server for user_base_dn
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
-        self.debug_print("Working on User: ", username + "@" + user_base_dn)
+        self.debug_print("Working on User: {0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
         self.save_progress("Getting user account properties")
 
@@ -882,7 +928,7 @@ class LdapConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_ACC_SEARCH_EMPTY)
 
         if (curr_pwd_set == 0):
-            self.save_progress(LDAP_PROG_PASSWORD_CHANGE_STATUS_SAME_AS_REQUIRED, username)
+            self.save_progress(LDAP_PROG_PASSWORD_CHANGE_STATUS_SAME_AS_REQUIRED, UnicodeDammit(username).unicode_markup.encode('utf-8'))
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_PASSWORD_CHANGE_STATE_SAME)
 
         # The modification list
@@ -898,12 +944,13 @@ class LdapConnector(BaseConnector):
 
     def _change_user_state(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
-        username = param[phantom.APP_JSON_USERNAME]
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
+        username = param.get(phantom.APP_JSON_USERNAME)
 
         user_base_dn = None
         # Query the server for user_base_dn
@@ -911,9 +958,14 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
+        try:
+            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
+        except:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
+
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
-        self.debug_print("Working on User: ", username + "@" + user_base_dn)
+        self.debug_print("Working on User: {0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
 
         # The attribute list to query
         attr_list = ['userAccountControl']
@@ -949,7 +1001,7 @@ class LdapConnector(BaseConnector):
             # Set the resultant account control
             mod_acc_ctrl = curr_acc_ctrl & ~(ACC_DISABLED_CTRL_FLAG)
         else:
-            self.save_progress(LDAP_PROG_USER_STATUS_SAME_AS_REQUIRED, username)
+            self.save_progress(LDAP_PROG_USER_STATUS_SAME_AS_REQUIRED, UnicodeDammit(username).unicode_markup.encode('utf-8'))
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_AD_USER_STATE_SAME)
 
             # print "Set the userAccountControl to 0x%x" % (mod_acc_ctrl)
@@ -967,7 +1019,7 @@ class LdapConnector(BaseConnector):
 
         return action_result.set_status(phantom.APP_SUCCESS, LDAP_SUCC_USER_STATE_CHANGED)
 
-    def _connect_to_server(self, ldap_url, config):
+    def _connect_to_server(self, action_result, ldap_url, config):
 
         # Get the server
         ldap_server = config[phantom.APP_JSON_SERVER]
@@ -977,14 +1029,33 @@ class LdapConnector(BaseConnector):
         try:
             self.__ldap_conn = ldap.initialize(ldap_url)  # pylint: disable=E1101
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_INITIALIZATION_FAILED, e)
+            try:
+                if e.args:
+                    if len(e.args) > 1:
+                        error_code = e.args[0]
+                        error_msg = e.args[1]
+                    elif len(e.args) == 1:
+                        error_code = "Error code unavailable"
+                        error_msg = e.args[0]
+                else:
+                    error_code = "Error code unavailable"
+                    error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
+                error_msg = UnicodeDammit(error_msg).unicode_markup.encode('utf-8')
+            except TypeError:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or the action parameters."
+            except:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
+
+            return action_result.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_INITIALIZATION_FAILED, error_code, error_msg))
 
         # handle None return, the docs are not clear what happens in case of failure
         # supposedly the call will always return an object, since that's all
         # it does, create an object, no communication is actually carried out
         # with the ldap server
         if (self.__ldap_conn is None):
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_INITIALIZATION_FAILED, e)
+            return action_result.set_status(phantom.APP_ERROR, "{}. Please check the asset configuration and|or action parameters.".format(LDAP_ERR_INITIALIZATION_FAILED))
 
         # set few options, required
         self.__ldap_conn.set_option(ldap.OPT_REFERRALS, 0)  # pylint: disable=E1101
@@ -993,16 +1064,16 @@ class LdapConnector(BaseConnector):
 
         # Get the base dn, we don't need to be logged into the server to do
         # this query
-        status = self._get_base_dn()
+        status = self._get_base_dn(action_result)
         if (phantom.is_fail(status)):
             # _get_base_dn must have set the status
             return status
 
         self.save_progress(LDAP_PROG_GOT_BASE_DN, self.__base_dn)
-
         # Get the username, we might have to modify the format a bit
-        username = config[phantom.APP_JSON_USERNAME]
+        username = config.get(phantom.APP_JSON_USERNAME)
 
+        password = config.get(phantom.APP_JSON_PASSWORD)
         # We could prefex the username with the domain name, but not too sure
         # how this will pan out, so for now keeping it as is. In case login
         # fails, the asset config will need to specify the username as
@@ -1010,16 +1081,34 @@ class LdapConnector(BaseConnector):
         username = username.replace('/', '\\')
 
         self.save_progress(phantom.APP_PROG_CONNECTING_TO_ELLIPSES, ldap_server)
-
         # Try binding to the server now
         try:
-            self.__ldap_conn.simple_bind_s(username, config[phantom.APP_JSON_PASSWORD])
+            self.__ldap_conn.simple_bind_s(username, password)
         except Exception as e:
-            return self.set_status(phantom.APP_ERROR, LDAP_ERR_BIND_FAILED, e)
+            try:
+                if e.args:
+                    if len(e.args) > 1:
+                        error_code = e.args[0]
+                        error_msg = e.args[1]
+                    elif len(e.args) == 1:
+                        error_code = "Error code unavailable"
+                        error_msg = e.args[0]
+                else:
+                    error_code = "Error code unavailable"
+                    error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
+                error_msg = UnicodeDammit(error_msg).unicode_markup.encode('utf-8')
+            except TypeError:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or the action parameters."
+            except:
+                error_code = "Error code unavailable"
+                error_msg = "Error occurred while connecting to the LDAP server. Please check the asset configuration and|or action parameters."
+
+            return action_result.set_status(phantom.APP_ERROR, "{0}. Error code:{1} Error Message:{2}".format(LDAP_ERR_BIND_FAILED, error_code, error_msg))
 
         return phantom.APP_SUCCESS
 
-    def _connect(self):
+    def _connect(self, action_result):
 
         config = self.get_config()
 
@@ -1027,12 +1116,12 @@ class LdapConnector(BaseConnector):
         ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)  # pylint: disable=E1101
 
         # The server
-        ldap_server = config[phantom.APP_JSON_SERVER]
+        ldap_server = UnicodeDammit(config.get(phantom.APP_JSON_SERVER)).unicode_markup.encode('utf-8')
 
         # First try with ssl
         self.__using_ssl = True
         ldap_url = 'ldaps://{}'.format(ldap_server)
-        ret_val = self._connect_to_server(ldap_url, config)
+        ret_val = self._connect_to_server(action_result, ldap_url, config)
 
         # Force SSL?
         force_ssl = bool(config[LDAP_JSON_FORCE_SSL])
@@ -1043,27 +1132,27 @@ class LdapConnector(BaseConnector):
                 # Try with non ssl
                 self.save_progress(LDAP_PROG_SSL_FAILED_TRYING_NON_SSL)
                 ldap_url = 'ldap://{}'.format(ldap_server)
-                ret_val = self._connect_to_server(ldap_url, config)
+                ret_val = self._connect_to_server(action_result, ldap_url, config)
             else:
                 self.append_to_message(LDAP_MSG_NON_SSL_NOT_ALLOWED)
 
         if (phantom.is_fail(ret_val)):
-            return self.get_status()
+            return action_result.get_status()
 
         # send success, required else handle_action will not get called
         return phantom.APP_SUCCESS
 
     def _list_users(self, param):
 
-        # Connect
-        if (phantom.is_fail(self._connect())):
-            return self.get_status()
-
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Connect
+        if (phantom.is_fail(self._connect(action_result))):
+            return action_result.get_status()
+
         action_result.update_summary({LDAP_JSON_TOTAL_USERS: 0})
 
-        all_users = param[LDAP_JSON_ALL_USERS]
-
+        all_users = param.get(LDAP_JSON_ALL_USERS)
         if (all_users):
             dn_to_query = self.__base_dn
             search_filter = '(&(objectClass=User)(mail=*))'
@@ -1078,12 +1167,13 @@ class LdapConnector(BaseConnector):
             if (not obj_class):
                 return action_result.set_status(phantom.APP_ERROR,
                         "Parameter {0} not specified, it is required when all_users is set to False".format(LDAP_JSON_OBJECT_CLASS))
+            obj_name = UnicodeDammit(obj_name).unicode_markup.encode('utf-8')
+            obj_class = UnicodeDammit(obj_class).unicode_markup.encode('utf-8')
 
             ret_val, dn_to_query = self._get_object_base_dn(obj_name, obj_class, action_result)
 
             if (phantom.is_fail(ret_val)):
                 return action_result.get_status()
-
             # users are memberOf groups, not subclasses of groups, so if obj_class == group we need to add
             # memberOf=group_base_dn as a search filter and reset dn_to_query back to __base_dn
             if obj_class == 'group':
@@ -1107,7 +1197,7 @@ class LdapConnector(BaseConnector):
 
         # Parse the result
         if not r_data:
-            return self.set_status(phantom.APP_SUCCESS, "No Users found with email addresses")
+            return action_result.set_status(phantom.APP_SUCCESS, "No Users found with email addresses")
 
         self.debug_print("r_data", r_data)
 
@@ -1146,13 +1236,14 @@ class LdapConnector(BaseConnector):
 
     def _test_asset_connectivity(self, param):
 
-        if (phantom.is_fail(self._connect())):
-            self.debug_print("connect failed")
-            self.save_progress(LDAP_ERR_CONNECTIVITY_TEST)
-            return self.append_to_message(LDAP_ERR_CONNECTIVITY_TEST)
+        action_result = self.add_action_result(ActionResult(dict(param)))
 
-        self.debug_print("connect passed")
-        return self.set_status_save_progress(phantom.APP_SUCCESS, LDAP_SUCC_CONNECTIVITY_TEST)
+        if phantom.is_fail(self._connect(action_result)):
+            self.save_progress(LDAP_ERR_CONNECTIVITY_TEST)
+            return action_result.get_status()
+
+        self.save_progress(LDAP_SUCC_CONNECTIVITY_TEST)
+        return self.set_status(phantom.APP_SUCCESS, LDAP_SUCC_CONNECTIVITY_TEST)
 
     def handle_action(self, param):
         """"""

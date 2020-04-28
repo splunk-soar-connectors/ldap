@@ -1365,9 +1365,9 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "set password",
+            "action": "set password",i
             "description": "Set the password of a user",
-            "verbose": "Note that a user currently logged on will stay logged in. The LDAP server may refuse to accept the password unless the connection is over SSL. <p class=\"warn\">Exercise caution when using this Action. The password may be kept and logged in cleartext.</p>",
+            "verbose": "Note that a user currently logged in will stay logged in. The LDAP server may refuse to accept the password unless the connection is over SSL. <p class=\"warn\">Exercise caution when using this Action. The password may be kept and logged in cleartext.</p>",
             "type": "contain",
             "identifier": "set_password",
             "read_only": false,

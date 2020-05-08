@@ -271,15 +271,21 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
+        self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
+        self.debug_print("Got the user_base_dn type: {}".format(type(user_base_dn)))
+        self.debug_print("Got the user_base_dn: {}".format(user_base_dn))
+
         try:
             user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
         except:
+            self.debug_print("Error occurred while fetching 'user_base_dn' from the username.")
             return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
+        self.debug_print("Working on User: {}".format(UnicodeDammit(username).unicode_markup.encode('utf-8')))
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
-        self.debug_print("Working on User:{0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
+        self.debug_print("Working on the user_base_dn: {}".format(type(user_base_dn)))
+        self.debug_print("Working on the user_base_dn: {}".format(user_base_dn))
 
-        user_base_dn = u''.join(user_base_dn.decode('utf-8'))
         # The attribute list to query
         try:
             r_data = self.__ldap_conn.search_s(user_base_dn, ldap.SCOPE_BASE, "cn=*")  # pylint: disable=E1101
@@ -287,6 +293,7 @@ class LdapConnector(BaseConnector):
             self.debug_print(LDAP_ERR_USER_ATTRIBUTE_SEARCH)
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED, e)
 
+        self.debug_print("Got the RData: {}".format(r_data))
         action_result.add_debug_data(r_data)
 
         # Get the result

@@ -5,7 +5,7 @@
     "publisher": "Splunk",
     "type": "directory service",
     "main_module": "ldap_connector.pyc",
-    "app_version": "1.2.43",
+    "app_version": "1.2.45",
     "utctime_updated": "2020-04-28T20:36:28.000000Z",
     "package_name": "phantom_ldap",
     "product_vendor": "Microsoft",

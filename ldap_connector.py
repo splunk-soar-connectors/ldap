@@ -567,6 +567,11 @@ class LdapConnector(BaseConnector):
 
         attrib_value = self._handle_bool_string(attrib_val)
 
+        try:
+            attrib_value = UnicodeDammit(attrib_value).unicode_markup.encode("utf-8")
+        except:
+            self.debug_print("Error occurred while performing Unicode handling for the attribute value")
+
         # get the current value of the variable
         # The attribute list to query
         attr_list = [attrib_name]

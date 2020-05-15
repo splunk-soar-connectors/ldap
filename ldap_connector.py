@@ -790,7 +790,7 @@ class LdapConnector(BaseConnector):
         # create the newrdn from the machine_base_dn
         newrdn = machine_base_dn[:machine_base_dn.find(',')]
 
-        self.debug_print("newrdn", newrdn)
+        self.debug_print("newrdn {0}".format(newrdn))
 
         # Now check if the ou needs to be changed or not
         if (newrdn + ',' + ou_base_dn == machine_base_dn):

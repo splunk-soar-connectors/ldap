@@ -271,15 +271,11 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
-        try:
-            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
-
+        self.debug_print("Working on User: {}".format(UnicodeDammit(username).unicode_markup.encode('utf-8')))
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
-        self.debug_print("Working on User:{0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
+        self.debug_print("Got the user_base_dn type: {}".format(type(user_base_dn)))
+        self.debug_print("Got the user_base_dn: {}".format(user_base_dn))
 
-        user_base_dn = u''.join(user_base_dn.decode('utf-8'))
         # The attribute list to query
         try:
             r_data = self.__ldap_conn.search_s(user_base_dn, ldap.SCOPE_BASE, "cn=*")  # pylint: disable=E1101
@@ -287,6 +283,7 @@ class LdapConnector(BaseConnector):
             self.debug_print(LDAP_ERR_USER_ATTRIBUTE_SEARCH)
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_USER_GROUP_SEARCH_FAILED, e)
 
+        self.debug_print("Got the RData: {}".format(r_data))
         action_result.add_debug_data(r_data)
 
         # Get the result
@@ -426,11 +423,6 @@ class LdapConnector(BaseConnector):
         if (user_base_dn is None):
             return action_result.get_status()
 
-        try:
-            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
-
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
         self.debug_print("Working on User: {0}@{1}".format(UnicodeDammit(username).unicode_markup.encode('utf-8'), user_base_dn))
@@ -555,11 +547,6 @@ class LdapConnector(BaseConnector):
         if (phantom.is_fail(action_result.get_status())):
             return action_result.get_status()
 
-        try:
-            machine_base_dn = UnicodeDammit(machine_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'machine_base_dn' from the machine name.")
-
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
         self.debug_print("machine_base_dn: {0}".format(machine_base_dn))
@@ -571,16 +558,23 @@ class LdapConnector(BaseConnector):
         attrib_value = self._parse_hex_string(attrib_value)
         # Decoded attribute_value which is encoded with base 16 and than converted to character
         attrib_val = ''
+
         if(isinstance(attrib_value, list)):
             for i in attrib_value:
                 attrib_val += hex(unpack('B', i)[0]).split('x')[-1]
         else:
             attrib_val = attrib_value
+
         attrib_value = self._handle_bool_string(attrib_val)
+
+        try:
+            attrib_value = UnicodeDammit(attrib_value).unicode_markup.encode("utf-8")
+        except:
+            self.debug_print("Error occurred while performing Unicode handling for the attribute value")
 
         # get the current value of the variable
         # The attribute list to query
-        attr_list = [str(attrib_name)]
+        attr_list = [attrib_name]
         curr_attrib_value = ''
         try:
             r_data = self.__ldap_conn.search_s(machine_base_dn, ldap.SCOPE_SUBTREE, "cn=*", attr_list)  # pylint: disable=E1101
@@ -614,11 +608,11 @@ class LdapConnector(BaseConnector):
             # print "useAccountControl: 0x%x" % curr_attrib_value
             return action_result.set_status(phantom.APP_ERROR, LDAP_ERR_ATTRIB_NOT_FOUND)
 
-        if (str(curr_attrib_value) == str(attrib_value)):
+        if (curr_attrib_value == attrib_value):
             return action_result.set_status(phantom.APP_SUCCESS, LDAP_MSG_ATTRIB_VALUE_SAME)
 
         # The modification list
-        mod_list = [(ldap.MOD_REPLACE, str(attrib_name), str(attrib_value))]  # pylint: disable=E1101
+        mod_list = [(ldap.MOD_REPLACE, attrib_name, attrib_value)]  # pylint: disable=E1101
         # Now run the modify command on the base_dn
         try:
             self.__ldap_conn.modify_s(machine_base_dn, mod_list)
@@ -774,10 +768,6 @@ class LdapConnector(BaseConnector):
 
         if machine_base_dn is None:
             return action_result.set_status(phantom.APP_ERROR, "machine_dn not found")
-        try:
-            machine_base_dn = UnicodeDammit(machine_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'machine_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_DN, dn_type='machine', dn=machine_base_dn)
 
@@ -800,7 +790,7 @@ class LdapConnector(BaseConnector):
         # create the newrdn from the machine_base_dn
         newrdn = machine_base_dn[:machine_base_dn.find(',')]
 
-        self.debug_print("newrdn", newrdn)
+        self.debug_print("newrdn {0}".format(newrdn))
 
         # Now check if the ou needs to be changed or not
         if (newrdn + ',' + ou_base_dn == machine_base_dn):
@@ -832,11 +822,6 @@ class LdapConnector(BaseConnector):
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
-
-        try:
-            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
@@ -874,11 +859,6 @@ class LdapConnector(BaseConnector):
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
-
-        try:
-            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 
@@ -957,11 +937,6 @@ class LdapConnector(BaseConnector):
         user_base_dn = self._get_user_dn(username, param, action_result)
         if (user_base_dn is None):
             return action_result.get_status()
-
-        try:
-            user_base_dn = UnicodeDammit(user_base_dn).unicode_markup.encode('utf-8')
-        except:
-            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching 'user_base_dn' from the username.")
 
         self.save_progress(LDAP_PROG_GOT_USER_BASE_DN, user_base_dn)
 

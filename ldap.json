@@ -1694,5 +1694,29 @@
             },
             "versions": "EQ(*)"
         }
-    ]
+    ],
+    "pip_dependencies": {
+        "wheel": [
+            {
+                "module": "backports.functools_lru_cache",
+                "input_file": "wheels/backports.functools_lru_cache-1.6.4-py2.py3-none-any.whl"
+            },
+            {
+                "module": "beautifulsoup4",
+                "input_file": "wheels/beautifulsoup4-4.9.1-py2-none-any.whl"
+            },
+            {
+                "module": "pyasn1",
+                "input_file": "wheels/pyasn1-0.4.8-py2.py3-none-any.whl"
+            },
+            {
+                "module": "pyasn1_modules",
+                "input_file": "wheels/pyasn1_modules-0.2.8-py2.py3-none-any.whl"
+            },
+            {
+                "module": "soupsieve",
+                "input_file": "wheels/soupsieve-1.9.6-py2.py3-none-any.whl"
+            }
+        ]
+    }
 }
